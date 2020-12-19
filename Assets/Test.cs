@@ -13,7 +13,7 @@ public class Test : MonoBehaviour
     void Start()
     {
 
-        Application.targetFrameRate = 30;
+        Application.targetFrameRate = 25;
         QualitySettings.vSyncCount = 0;
 
         //intel = player.GetComponentInChildren<IntelligenceContainer>();
