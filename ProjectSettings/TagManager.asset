@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - shotZone
+  - dunkZone
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - FootColliders
+  - CourtBounds
+  - HandColliders
+  - BallCollider
+  - BallOnCourtFilter
+  - ReboundFilter
+  - DefenderFilter
+  - CourtZones
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Background
+    uniqueID: 2932798991
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Nets
+    uniqueID: 1841707767
+    locked: 0
