@@ -11,16 +11,24 @@ public class HandScript : MonoBehaviour
     private Vector2 handsDown;
     private Vector2 handsDunking;
 
+    private ActionsScript actions;
+
     void Start()
     {
         handsDown = transform.localPosition;
         handsUp = new Vector2(-.01f, 1.13f);
         handsDunking = new Vector2(.5f, 1f);
+
+        actions = GetComponentInParent<ActionsScript>();
+        actions.events.onJumpBegin += SetHandsUp;
+        actions.events.onJumpEnd += SetHandsDown;
+        actions.events.onDunkBegin += SetHandsDunking;
+        actions.events.onDunkEnd += SetHandsDown;
     }
 
-    public void SetHandsUp() { transform.localPosition = handsUp; }
+    private void SetHandsUp() { transform.localPosition = handsUp; }
 
-    public void SetHandsDown() { transform.localPosition = handsDown; }
+    private void SetHandsDown() { transform.localPosition = handsDown; }
 
-    public void SetHandsDunking() { transform.localPosition = handsDunking;}
+    private void SetHandsDunking() { transform.localPosition = handsDunking;}
 }

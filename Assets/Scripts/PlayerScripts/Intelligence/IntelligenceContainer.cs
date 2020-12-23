@@ -8,7 +8,7 @@ public class IntelligenceContainer : MonoBehaviour
 
     public IntelligenceType intelType;
 
-    private IntelligenceScript intelligence;
+    private IntelligenceScript current;
     private UserIntelligence userIntelligence;
     private OffBallOffenseIntelligence offBallOffenseIntelligence;
     private OnBallOffenseIntelligence onBallOffenseIntelligence;
@@ -32,19 +32,19 @@ public class IntelligenceContainer : MonoBehaviour
 
         switch (type) {
             case IntelligenceType.USER:
-                intelligence = userIntelligence;
+                current = userIntelligence;
                 break;
             case IntelligenceType.OFFBALL_OFF:
-                intelligence = offBallOffenseIntelligence;
+                current = offBallOffenseIntelligence;
                 break;
             case IntelligenceType.ONBALL_OFF:
-                intelligence = onBallOffenseIntelligence;
+                current = onBallOffenseIntelligence;
                 break;
             case IntelligenceType.OFFBALL_DEF:
-                intelligence = offBallDefenseIntelligence;
+                current = offBallDefenseIntelligence;
                 break;
             case IntelligenceType.ONBALL_DEF:
-                intelligence = onBallDefenseIntelligence;
+                current = onBallDefenseIntelligence;
                 break;
             default:
                 Debug.LogWarning("Intelligence Type Not Found");
@@ -53,6 +53,6 @@ public class IntelligenceContainer : MonoBehaviour
     }
     
     //Returns the current Intelligence Script
-    public IntelligenceScript Current() { return intelligence; }
+    public IntelligenceScript Current() { return current; }
 
 }

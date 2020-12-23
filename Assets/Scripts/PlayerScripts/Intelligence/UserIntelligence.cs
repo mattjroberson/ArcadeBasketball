@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class UserIntelligence : IntelligenceScript
 {
@@ -17,6 +15,7 @@ public class UserIntelligence : IntelligenceScript
     public void Start()
     {
         inputController = GameObject.Find("InputController").GetComponent<InputController>();
+        
         player = transform.parent.GetComponentInParent<PlayerScript>();
         actions = transform.parent.GetComponentInParent<ActionsScript>();
     }
@@ -35,41 +34,24 @@ public class UserIntelligence : IntelligenceScript
 
     private void UpdateJumpLogic()
     {
-        if (inputController.GetJumpPressed() == true) {
-            if (jumpPressed == false) {
-                HandleJumpOrShoot(true);
-                jumpPressed = true;
+        if (jumpPressed == inputController.GetJumpPressed()) return;
+        jumpPressed = inputController.GetJumpPressed();
 
-            }
-        }
-        else {
-            if (jumpPressed == true) {
-                HandleJumpOrShoot(false);
-                jumpPressed = false;
-            }
-        }
+        DecideJumpOrShoot(inputController.GetJumpPressed());
     }
 
     private void UpdateSprintLogic()
     {
-        if (inputController.GetSprintPressed() == true) {
-            if (sprintPressed == false) {
-                actions.StartSprinting();
-                sprintPressed = true;
-            }
-        }
-        else {
-            if(sprintPressed == true) {
-                actions.StopSprinting();
-                sprintPressed = false;
-            }
-        }
+        if (inputController.GetSprintPressed() == sprintPressed) return;
+        sprintPressed = inputController.GetSprintPressed();
+
+        if (sprintPressed) actions.GetSprintAction().Start();
+        else actions.GetSprintAction().Stop();
     }
     
     private void UpdateSwitchLogic() {
-        if (inputController.GetSwitchPressed() == true) {
+        if (inputController.ReadSwitchPressed()) {
             if (player.GetHasBall() == true) {
-                inputController.SetSwitchPressed(false);
                 actions.StartPassing();
             }
         }
@@ -77,24 +59,23 @@ public class UserIntelligence : IntelligenceScript
 
     private void UpdateStealLogic()
     {
-        if (inputController.GetStealPressed() == true) {
-            inputController.SetStealPressed(false);
+        if (inputController.ReadStealPressed()) {
             if (player.IsOffense() == false) {
                 actions.AttemptSteal();
             }
         }
     }
 
-    private void HandleJumpOrShoot(bool isStart)
+    private void DecideJumpOrShoot(bool isStart)
     {
-        //If the player is on offense, shoot
         if(player.GetHasBall() == true) {
-            if (isStart == true) actions.HandleShotType();
-            else actions.ReleaseShot();
+            if (isStart == true) actions.InitializeShot();
+            else actions.GetShootAction().Stop();
         }
-        //Otherwise jump
         else {
-            if (isStart == true) actions.StartJumping();
+            if (isStart == true) actions.GetJumpAction().Start();
+            //TODO implement jump exit, right now floaty bug happens
+            //else actions.GetJumpAction().Stop();
         }
     }
 }

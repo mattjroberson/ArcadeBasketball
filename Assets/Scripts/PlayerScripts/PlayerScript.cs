@@ -4,32 +4,19 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    public enum SpriteType { DEFAULT, JUMPING, REACHING, DUNKING }
-
     private GameLogicScript gameLogic;
 
     private TeamScript teamScript;
 
     private PhysicsScript physics;
+    
     private IntelligenceContainer intelligence;
-    private ActionsScript actions;
     private AttributeScript attributes;
-    private SpriteRenderer spriteRenderer;
 
     private HandScript hands;
-    private Transform frontPoint;
-
-    private GameObject shotMeterPrefab;
-    private ShotMeter shotMeter;
-
-    public Sprite defaultSprite;
-    public Sprite jumpingSprite;
-    public Sprite reachingSprite;
-    public Sprite dunkingSprite;
+    private Transform frontPoint;  
 
     public PlayerScript teammate;
-    //public GameObject shotZones;
-    //public GoalScript currentGoal;
 
     //Internal Values
     private float currentSpeed;
@@ -54,20 +41,14 @@ public class PlayerScript : MonoBehaviour
 
         teamScript = transform.GetComponentInParent<TeamScript>();
 
-        actions = GetComponent<ActionsScript>();
         physics = GetComponentInChildren<PhysicsScript>();
         intelligence = GetComponentInChildren<IntelligenceContainer>();
         attributes = GetComponent<AttributeScript>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         hands = GetComponentInChildren<HandScript>();
         frontPoint = transform.Find("FrontPoint");
 
-        shotMeterPrefab = Resources.Load("Prefabs/ShotMeterPrefab") as GameObject;
-
         currentSpeed = attributes.GetMaxSpeed();
-
-        SetSprite(SpriteType.DEFAULT);
 
         CheckForPossession();
     }
@@ -84,25 +65,6 @@ public class PlayerScript : MonoBehaviour
     public void LateUpdate()
     {
         physics.UpdatePhysics();
-    }
-
-    public void SetSprite(SpriteType type)
-    {
-        switch (type) {
-            case SpriteType.DEFAULT:
-                spriteRenderer.sprite = defaultSprite;
-                break;
-            case SpriteType.JUMPING:
-                spriteRenderer.sprite = jumpingSprite;
-                break;
-            case SpriteType.REACHING:
-                spriteRenderer.sprite = reachingSprite;
-                StartCoroutine(PutHandsDown());
-                break;
-            case SpriteType.DUNKING:
-                spriteRenderer.sprite = dunkingSprite;
-                break;
-        }
     }
 
     //Makes sure the player is facing the correct way
@@ -209,25 +171,6 @@ public class PlayerScript : MonoBehaviour
         return false;
     }
 
-    //Assumes only two players per team
-    private PlayerScript InitTeammate()
-    {
-        foreach(PlayerScript player in transform.parent.GetComponentsInChildren<PlayerScript>()) {
-            if(player.Equals(this) == false) {
-                return player;
-            }
-        }
-
-        return null;
-    }
-
-    //Instantiate the shot meter prefab and return the script
-    public ShotMeter InstantiateShotMeter()
-    {
-       shotMeter =  Instantiate(shotMeterPrefab, transform.Find("MeterContainer").position, Quaternion.identity).GetComponentInChildren<ShotMeter>();
-       return shotMeter;
-    }
-
     public string GetShotZoneName()
     {
         foreach (PolygonCollider2D zone in teamScript.getCurrentSide().getShotZones().GetComponentsInChildren<PolygonCollider2D>()) {
@@ -246,12 +189,6 @@ public class PlayerScript : MonoBehaviour
         facingRight = true;
     }
 
-    private IEnumerator PutHandsDown()
-    {
-        yield return new WaitForSeconds(.25f);
-        SetSprite(SpriteType.DEFAULT);
-    }
-
     public float GetCurrentSpeed() { return currentSpeed; }
 
     public bool IsOffense() { return isOffense; }
@@ -261,8 +198,6 @@ public class PlayerScript : MonoBehaviour
     public bool GetHasBall() { return hasBall; }
 
     public bool GetFacingRight() { return facingRight; }
-
-    public ShotMeter GetShotMeter() { return shotMeter; }
 
     public PlayerScript GetTeammate() { return teammate; }
 

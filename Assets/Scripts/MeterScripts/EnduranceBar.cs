@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class EnduranceBar : MonoBehaviour
@@ -8,6 +6,7 @@ public class EnduranceBar : MonoBehaviour
     private enum BarState { FILLING, CONSUMING, STEADY, COOLDOWN }
     private BarState barState;
 
+    //TODO Remove Dependency on player / attributes
     private PlayerScript player;
     private ActionsScript actions;
     private AttributeScript attributes;
@@ -38,6 +37,12 @@ public class EnduranceBar : MonoBehaviour
 
         value = attributes.GetMaxEndurance();
         meter.maxValue = value;
+
+        actions.events.onSprintBegin += SprintBeginEvent;
+        actions.events.onSprintEnd += SprintEndEvent;
+
+        actions.events.onShootBegin += ShootBeginEvent;
+        actions.events.onShootEnd += ShootEndEvent;
     }
 
     void FixedUpdate()
@@ -73,16 +78,28 @@ public class EnduranceBar : MonoBehaviour
         transform.rotation = lockedRotation;
     }
 
-    public void StartMeter()
+    private void SprintBeginEvent()
     {
+        player.HandleSprintSpeed(true);
         barState = BarState.CONSUMING;
     }
 
-    public void StopMeter()
+    private void SprintEndEvent()
     {
-        if(barState == BarState.CONSUMING) {
+        player.HandleSprintSpeed(false);
+        if (barState == BarState.CONSUMING) {
             barState = BarState.FILLING;
         }
+    }
+
+    private void ShootBeginEvent()
+    {
+        transform.parent.gameObject.SetActive(false);
+    }
+
+    private void ShootEndEvent()
+    {
+        transform.parent.gameObject.SetActive(true);
     }
 
     public bool HasEndurance()
@@ -94,7 +111,7 @@ public class EnduranceBar : MonoBehaviour
     {
         if(value == 0) {
             barState = BarState.COOLDOWN;
-            actions.StopSprinting();
+            actions.GetSprintAction().Stop();
         }
     }
 

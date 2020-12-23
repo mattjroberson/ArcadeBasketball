@@ -5,7 +5,6 @@ using UnityEngine;
 public abstract class IntelligenceScript : MonoBehaviour
 {
     protected PlayerScript player;
-    protected PhysicsScript physics;
     protected ActionsScript actions;
 
     protected  Vector2 moveDirection;

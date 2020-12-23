@@ -84,6 +84,8 @@ public class PhysicsScript : MonoBehaviour
         footCollider = transform.Find("ColliderContainer").Find("FootCollider").GetComponent<BoxCollider2D>();
         handCollider = transform.Find("ColliderContainer").Find("HandCollider").GetComponent<BoxCollider2D>();
 
+        actions.events.onJumpBegin += OnJumpStartEvent;
+        actions.events.onDunkBegin += OnDunkStartEvent;
     }
 
     public void UpdatePhysics()
@@ -134,7 +136,7 @@ public class PhysicsScript : MonoBehaviour
     }
 
     //Handle the beginning of a jump
-    public void HandleJumpStart()
+    public void OnJumpStartEvent()
     {
         currentMoveState = MoveState.JUMPING;
 
@@ -155,23 +157,26 @@ public class PhysicsScript : MonoBehaviour
 
         //If player back on ground, stop jumping
         if (transform.position.y <= jumpFloor.y) {
-            transform.position = jumpFloor;
-            HandleLockedElements(true);
-
-            currentMoveState = MoveState.RUNNING;
-            actions.StopJumping();
+            HandleJumpEnd();
         }
     }
 
+    private void HandleJumpEnd()
+    {
+        transform.position = jumpFloor;
+        HandleLockedElements(true);
+
+        currentMoveState = MoveState.RUNNING;
+        actions.GetJumpAction().Stop();
+    }
+
     //Handle the beginning of the dunk
-    public void HandleDunkStart()
+    public void OnDunkStartEvent()
     {
         currentMoveState = MoveState.DUNKING;
 
         dunkTrajectory = TrajectoryScript.CalculateTrajectory(transform.position, new Vector2(5.3f, .2f), dunkAngle, dunkArcPeakPercent);
         HandleLockedElements(false);
-
-        //footCollider.transform.position = new Vector2(5.3f, -.8f);
 
         currentVelocity = Vector2.zero;
     }
@@ -186,10 +191,16 @@ public class PhysicsScript : MonoBehaviour
 
         //If player reaches the dunk target, stop dunking
         if (transform.position.x >= 5.3f && transform.position.y <= .2f) {
-            currentMoveState = MoveState.JUMPING;
-            jumpFloor = new Vector2(transform.position.x, -.8f);
-            actions.StopDunking();
+            HandleDunkEnd();
         }
+    }
+
+    //TODO Fix  Hardcode value
+    private void HandleDunkEnd()
+    {
+        currentMoveState = MoveState.JUMPING;
+        jumpFloor = new Vector2(transform.position.x, -.8f);
+        actions.GetDunkAction().Stop();
     }
 
     //Keep these objects from moving when the player jumps

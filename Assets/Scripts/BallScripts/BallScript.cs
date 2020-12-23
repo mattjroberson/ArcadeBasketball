@@ -38,6 +38,10 @@ public class BallScript : MonoBehaviour
         currentPlayer = transform.GetComponentInParent<PlayerScript>();
 
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
+
+        GameEvents.events.onBallShot += ShootEvent;
+        GameEvents.events.onBallPassed += PassEvent;
+        GameEvents.events.onBallStolen += StealEvent;
     }
 
     public void LateUpdate()
@@ -48,7 +52,7 @@ public class BallScript : MonoBehaviour
         }
     }
 
-    public void Pass(PlayerScript target)
+    private void PassEvent(PlayerScript target)
     {
         StartCoroutine(PassWhenTargetGrounded(target));
     }
@@ -79,7 +83,7 @@ public class BallScript : MonoBehaviour
         target.GetComponent<ActionsScript>().SetFrozen(false);
     }
 
-    public void StealBall(PlayerScript defender)
+    private void StealEvent(PlayerScript defender)
     {
         //Attach the ball to the defender and clear its local position
         currentPlayer = defender;
@@ -96,7 +100,7 @@ public class BallScript : MonoBehaviour
         targetPlayer = target;
 
         //Wait till the player is on the ground to pass
-        while (currentActionsScript.IsJumping()) {
+        while (currentActionsScript.GetJumpAction().IsActive()) {
             yield return new WaitForSeconds(0.1f);
         }
 
@@ -111,7 +115,7 @@ public class BallScript : MonoBehaviour
         transform.SetParent(looseBallContainer);
     }
 
-    public void Shoot(GoalScript goal, bool madeShot)
+    private void ShootEvent(GoalScript goal, bool madeShot)
     {
         this.madeShot = madeShot;
 
