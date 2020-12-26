@@ -22,8 +22,8 @@ public class AnimatorScript : MonoBehaviour
         actions.events.onJumpEnd += JumpEndEvent;
         actions.events.onDunkBegin += DunkBeginEvent;
         actions.events.onDunkEnd += DunkEndEvent;
-        actions.events.onPassBegin += ReachEvent;
-        actions.events.onStealBegin += ReachEvent;
+        actions.events.onPassBegin += PassEvent;
+        actions.events.onSwipeBegin += SwipeEvent;
 
         SetSprite(SpriteType.DEFAULT);
     }
@@ -79,7 +79,12 @@ public class AnimatorScript : MonoBehaviour
         SetSprite(SpriteType.DEFAULT);
     }
 
-    private void ReachEvent()
+    private void PassEvent(Transform target)
+    {
+        SetSprite(SpriteType.REACHING);
+    }
+
+    private void SwipeEvent()
     {
         SetSprite(SpriteType.REACHING);
     }

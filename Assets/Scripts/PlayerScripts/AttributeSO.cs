@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttributeScript : MonoBehaviour
+[CreateAssetMenu (fileName ="New Attributes", menuName ="Attributes")]
+public class AttributeSO : ScriptableObject
 {
     //Attributes
     [SerializeField] private int speedAttr = 5;
@@ -26,13 +27,10 @@ public class AttributeScript : MonoBehaviour
 
     private float shotMeterSpeed;
 
-    public void Awake()
+    public void InitializeAttributes()
     {
-        InitializeAttributes();
-    }
 
-    private void InitializeAttributes()
-    {
+        //TODO Make this stuff more transparent / less hard coded
         //Make sure the attributes are in a valid range
         speedAttr = Mathf.Clamp(speedAttr, 0, 25);
         jumpAttr = Mathf.Clamp(jumpAttr, 0, 25);
@@ -57,7 +55,6 @@ public class AttributeScript : MonoBehaviour
         sprintBonus = 2f;
         maxJump = 3.5f + ((jumpAttr) * .04f);
         maxEndur = 1.25f + ((endurAttr) * .15f);
-        //endur_refill = 8.75f - ((endur_attr + modifier) * .15f);
         stealProb = (5 + (defenseAttr)) / 100f;
 
         stealFoulProbability = 1f;

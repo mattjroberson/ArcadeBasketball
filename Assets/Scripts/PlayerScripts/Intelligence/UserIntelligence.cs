@@ -7,24 +7,17 @@ public class UserIntelligence : IntelligenceScript
     private bool jumpPressed;
     private bool sprintPressed;
 
-    public void Awake()
+    public override void Start()
     {
-        moveDirection = Vector2.zero;
-    }
-
-    public void Start()
-    {
+        base.Start();
         inputController = GameObject.Find("InputController").GetComponent<InputController>();
-        
-        player = transform.parent.GetComponentInParent<PlayerScript>();
-        actions = transform.parent.GetComponentInParent<ActionsScript>();
     }
 
     public override void FixedUpdateIntelligence() {}
 
     public override void UpdateIntelligence()
     {
-        moveDirection = inputController.GetInputDirection();
+        SetMoveDirection(inputController.GetInputDirection());
 
         UpdateJumpLogic();
         UpdateSprintLogic();
@@ -61,7 +54,7 @@ public class UserIntelligence : IntelligenceScript
     {
         if (inputController.ReadStealPressed()) {
             if (player.IsOffense() == false) {
-                actions.AttemptSteal();
+                actions.ReachForSteal();
             }
         }
     }

@@ -4,21 +4,11 @@ using UnityEngine;
 
 public class ArtificialIntelligence : IntelligenceScript
 {
-
-    public void Awake()
-    {
-        moveDirection = Vector2.zero;
-    }
-
-    public void Start()
-    {
-        actions = transform.parent.GetComponentInParent<ActionsScript>();
-    }
-
     public override void FixedUpdateIntelligence() { }
 
     public override void UpdateIntelligence()
     {
-
+        //TODO This is just placeholder for movement 
+        player.SetCurrentMoveDirection(Vector2.zero);
     }
 }

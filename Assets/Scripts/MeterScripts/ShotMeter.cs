@@ -8,8 +8,9 @@ public class ShotMeter : MonoBehaviour
     private enum BarState { FILLING, DROPPING, PAUSED }
     private BarState barState;
 
+    //TODO Make sure we absolutely need this dependency on player
+    private PlayerScript player;
     private ActionsScript actions;
-    private AttributeScript attributes;
     private Slider meter;
 
     private Quaternion lockedRotation;
@@ -19,14 +20,14 @@ public class ShotMeter : MonoBehaviour
 
     public void Start()
     {
-        actions = transform.parent.parent.GetComponentInParent<ActionsScript>();
-        attributes = transform.parent.parent.GetComponentInParent<AttributeScript>();
+        player =  transform.GetComponentInParent<PlayerScript>();
+        actions = transform.GetComponentInParent<ActionsScript>();
 
         meter = transform.GetComponent<Slider>();
         barState = BarState.PAUSED;
         value = meter.minValue;
 
-        fillSpeed = (meter.maxValue - meter.minValue) / attributes.GetShotMeterSpeed() * 2;
+        fillSpeed = (meter.maxValue - meter.minValue) / player.GetAttributes().GetShotMeterSpeed() * 2;
 
         actions.events.onShootBegin += ShootBeginEvent;
         actions.events.onShootEnd += ShootEndEvent;

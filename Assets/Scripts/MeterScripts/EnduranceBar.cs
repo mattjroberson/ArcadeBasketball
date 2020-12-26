@@ -6,10 +6,9 @@ public class EnduranceBar : MonoBehaviour
     private enum BarState { FILLING, CONSUMING, STEADY, COOLDOWN }
     private BarState barState;
 
-    //TODO Remove Dependency on player / attributes
+    //TODO Make sure we absolutely need this dependency on player
     private PlayerScript player;
     private ActionsScript actions;
-    private AttributeScript attributes;
     private Slider meter;
 
     private float coolDown;
@@ -32,10 +31,9 @@ public class EnduranceBar : MonoBehaviour
     {
         player = transform.parent.parent.GetComponentInParent<PlayerScript>();
         actions = transform.parent.parent.GetComponentInParent<ActionsScript>();
-        attributes = transform.parent.parent.GetComponentInParent<AttributeScript>();
         meter = GetComponent<Slider>();
 
-        value = attributes.GetMaxEndurance();
+        value = player.GetAttributes().GetMaxEndurance();
         meter.maxValue = value;
 
         actions.events.onSprintBegin += SprintBeginEvent;
@@ -111,7 +109,7 @@ public class EnduranceBar : MonoBehaviour
     {
         if(value == 0) {
             barState = BarState.COOLDOWN;
-            actions.GetSprintAction().Stop();
+            actions.events.EnduranceDepleted();
         }
     }
 

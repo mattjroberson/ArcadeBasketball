@@ -60,7 +60,7 @@ public class LooseBallPhysics
             physics.SetVelocity(newVelocity);
 
             if (Mathf.Abs(physics.GetVelocity().y) < minimumBounceVelocity) {
-                physics.GetBallScript().SetBallState(BallScript.BallState.ON_GROUND);
+                BallScript.SetBallState(BallScript.BallState.ON_GROUND);
             }
             else {
                 newVelocity = physics.GetVelocity() * -1 * ballBounceFactor;

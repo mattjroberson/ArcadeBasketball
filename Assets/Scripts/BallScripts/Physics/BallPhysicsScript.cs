@@ -36,7 +36,7 @@ public class BallPhysicsScript : MonoBehaviour
 
     public void UpdatePhysics()
     {
-        switch (basketball.GetBallState()) {
+        switch (BallScript.GetBallState()) {
             case BallScript.BallState.PASSING:
                 passingPhysics.Update();
                 break;

@@ -54,10 +54,10 @@ public class ObjectLayerSorter : MonoBehaviour
         //Set the Layer for each Player
         foreach (PlayerScript player in players) {
             //If the ball isnt possessed and hasnt been sorted account for its sorting order
-            if (basketball.GetBallState() != BallScript.BallState.POSESSED && ballSorted == false) {
+            if (BallScript.GetBallState() != BallScript.BallState.POSESSED && ballSorted == false) {
 
                 //If ball is being passed
-                if (basketball.GetBallState() == BallScript.BallState.PASSING) {
+                if (BallScript.GetBallState() == BallScript.BallState.PASSING) {
                     //If path is behind a player, order it behind
                     if (IsPassPathBehindPlayer(player) == true) {
                         basketballSprite.sortingOrder = i;

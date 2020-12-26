@@ -28,4 +28,10 @@ public class GameEvents : MonoBehaviour
         onBallStolen?.Invoke(defender);
     }
 
+    public event Action<PlayerScript> onLooseBallPickup;
+    public void LooseBallPickup(PlayerScript player)
+    {
+        onLooseBallPickup?.Invoke(player);
+    }
+
 }

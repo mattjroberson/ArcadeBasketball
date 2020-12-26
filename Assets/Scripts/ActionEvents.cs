@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 public class ActionEvents
 {
@@ -38,6 +39,12 @@ public class ActionEvents
         onDunkEnd?.Invoke();
     }
 
+    public event Action onShotInit;
+    public void ShotInit()
+    {
+        onShotInit?.Invoke();
+    }
+
     public event Action onShootBegin;
     public void ShootBegin()
     {
@@ -50,21 +57,27 @@ public class ActionEvents
         onShootEnd?.Invoke();
     }
 
-    public event Action onPassBegin;
-    public void PassBegin()
+    public event Action<Transform> onPassBegin;
+    public void PassBegin(Transform target)
     {
-        onPassBegin?.Invoke();
+        onPassBegin?.Invoke(target);
     }
 
-    public event Action onStealBegin;
-    public void StealBegin()
+    public event Action onSwipeBegin;
+    public void SwipeBegin()
     {
-        onStealBegin?.Invoke();
+        onSwipeBegin?.Invoke();
     }
 
     public event Action onWalkViolation;
     public void WalkViolation()
     {
         onWalkViolation?.Invoke();
+    }
+
+    public event Action onEnduranceDepleted;
+    public void EnduranceDepleted()
+    {
+        onEnduranceDepleted?.Invoke();
     }
 }

@@ -370,7 +370,6 @@ GameObject:
   - component: {fileID: 4201190}
   - component: {fileID: 4201189}
   - component: {fileID: 4201188}
-  - component: {fileID: 4201194}
   - component: {fileID: 4201191}
   m_Layer: 0
   m_Name: player1
@@ -435,6 +434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2477478cbeac8348b3ce312512376d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributes: {fileID: 11400000, guid: 7038ba76025a8df4491a2948a0f5aae2, type: 2}
   teammate: {fileID: 1719992014}
 --- !u!114 &4201191
 MonoBehaviour:
@@ -521,22 +521,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &4201194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4201186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e88aa3a4fc39a4f83f211b2f7f99be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speedAttr: 5
-  jumpAttr: 5
-  endurAttr: 5
-  defenseAttr: 5
 --- !u!1 &22228641
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,7 +1177,6 @@ GameObject:
   - component: {fileID: 169498344}
   - component: {fileID: 169498343}
   - component: {fileID: 169498342}
-  - component: {fileID: 169498348}
   - component: {fileID: 169498345}
   m_Layer: 0
   m_Name: player3
@@ -1257,6 +1240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2477478cbeac8348b3ce312512376d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributes: {fileID: 11400000, guid: d4cde088b8437654194d376d85531fc3, type: 2}
   teammate: {fileID: 1651648141}
 --- !u!114 &169498345
 MonoBehaviour:
@@ -1343,22 +1327,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &169498348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 169498340}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e88aa3a4fc39a4f83f211b2f7f99be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speedAttr: 5
-  jumpAttr: 5
-  endurAttr: 5
-  defenseAttr: 5
 --- !u!1 &174514096
 GameObject:
   m_ObjectHideFlags: 0
@@ -8480,7 +8448,6 @@ GameObject:
   - component: {fileID: 1651648141}
   - component: {fileID: 1651648140}
   - component: {fileID: 1651648139}
-  - component: {fileID: 1651648145}
   - component: {fileID: 1651648142}
   m_Layer: 0
   m_Name: player4
@@ -8544,6 +8511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2477478cbeac8348b3ce312512376d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributes: {fileID: 11400000, guid: 0420059f35b02e44e87270fb6ca1e477, type: 2}
   teammate: {fileID: 169498344}
 --- !u!114 &1651648142
 MonoBehaviour:
@@ -8630,22 +8598,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1651648145
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1651648137}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e88aa3a4fc39a4f83f211b2f7f99be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speedAttr: 5
-  jumpAttr: 5
-  endurAttr: 5
-  defenseAttr: 5
 --- !u!1 &1653789826
 GameObject:
   m_ObjectHideFlags: 0
@@ -8891,7 +8843,6 @@ GameObject:
   - component: {fileID: 1719992014}
   - component: {fileID: 1719992013}
   - component: {fileID: 1719992012}
-  - component: {fileID: 1719992018}
   - component: {fileID: 1719992015}
   m_Layer: 0
   m_Name: player2
@@ -8908,7 +8859,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1719992010}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.03, y: -0.1, z: 0}
+  m_LocalPosition: {x: -1.03, y: -3.07, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_Children:
   - {fileID: 1203983878}
@@ -8955,6 +8906,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2477478cbeac8348b3ce312512376d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attributes: {fileID: 11400000, guid: dc4f9db1df0484641979f33a9fba59fc, type: 2}
   teammate: {fileID: 4201190}
 --- !u!114 &1719992015
 MonoBehaviour:
@@ -9041,22 +8993,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1719992018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1719992010}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e88aa3a4fc39a4f83f211b2f7f99be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speedAttr: 5
-  jumpAttr: 5
-  endurAttr: 5
-  defenseAttr: 5
 --- !u!1 &1746301916
 GameObject:
   m_ObjectHideFlags: 0

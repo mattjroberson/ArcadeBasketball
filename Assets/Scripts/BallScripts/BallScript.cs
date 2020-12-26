@@ -5,7 +5,7 @@ using UnityEngine;
 public class BallScript : MonoBehaviour
 {
     public enum BallState { POSESSED, LOOSE, ON_GROUND, SHOOTING, PASSING }
-    private BallState ballState;
+    private static BallState ballState;
 
     private GameObject shadowPrefab;
 
@@ -42,6 +42,7 @@ public class BallScript : MonoBehaviour
         GameEvents.events.onBallShot += ShootEvent;
         GameEvents.events.onBallPassed += PassEvent;
         GameEvents.events.onBallStolen += StealEvent;
+        GameEvents.events.onLooseBallPickup += LooseBallPickupEvent;
     }
 
     public void LateUpdate()
@@ -67,7 +68,7 @@ public class BallScript : MonoBehaviour
         currentPlayer = target;
 
         gameLogic.UpdatePossession(target);
-        target.GetComponent<ActionsScript>().SetFrozen(false);
+        target.SetFrozen(false);
     }
 
     public void StealPass(PlayerScript defender, PlayerScript target)
@@ -80,7 +81,7 @@ public class BallScript : MonoBehaviour
         transform.SetParent(defender.GetHands());
 
         gameLogic.UpdatePossession(defender);
-        target.GetComponent<ActionsScript>().SetFrozen(false);
+        target.SetFrozen(false);
     }
 
     private void StealEvent(PlayerScript defender)
@@ -94,6 +95,11 @@ public class BallScript : MonoBehaviour
         gameLogic.UpdatePossession(defender);
     }
 
+    private void LooseBallPickupEvent(PlayerScript player)
+    {
+        GrabBall(player);
+    }
+
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
     {
         ActionsScript currentActionsScript = target.GetComponent<ActionsScript>();
@@ -104,7 +110,7 @@ public class BallScript : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        currentActionsScript.SetFrozen(true);
+        target.SetFrozen(true);
 
         //Handle the physics of the pass
         physics.StartPass(target);
@@ -168,9 +174,9 @@ public class BallScript : MonoBehaviour
         shadow.GetComponent<BallShadowScript>().Focus(timeTillGround);
     }
 
-    public BallState GetBallState() { return ballState; }
+    public static BallState GetBallState() { return ballState; }
 
-    public void SetBallState(BallState newBallState) { ballState = newBallState; }
+    public static void SetBallState(BallState newBallState) { ballState = newBallState; }
 
     public void SetBallFloor(Vector2 target) { ballFloor = target; }
 

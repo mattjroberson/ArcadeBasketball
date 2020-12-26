@@ -1,24 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    private GameLogicScript gameLogic;
+    [SerializeField]
+    private AttributeSO attributes;
+    [SerializeField]
+    private PlayerScript teammate;
 
     private TeamScript teamScript;
 
     private PhysicsScript physics;
     
     private IntelligenceContainer intelligence;
-    private AttributeScript attributes;
 
     private HandScript hands;
     private Transform frontPoint;  
 
-    public PlayerScript teammate;
-
     //Internal Values
+    private Vector2 currentMoveDirection;
     private float currentSpeed;
     private int stealAttempts;
 
@@ -27,6 +26,7 @@ public class PlayerScript : MonoBehaviour
     private bool isOffense;
     private bool facingRight;
     private bool hasBall;
+    private bool isFrozen;
 
     private string shotZoneName;
 
@@ -34,20 +34,18 @@ public class PlayerScript : MonoBehaviour
     {
         InitializeValues();
     }
-
+    
     public void Start()
     {
-        gameLogic = GameObject.Find("GameLogic").GetComponent<GameLogicScript>();
-
         teamScript = transform.GetComponentInParent<TeamScript>();
 
         physics = GetComponentInChildren<PhysicsScript>();
         intelligence = GetComponentInChildren<IntelligenceContainer>();
-        attributes = GetComponent<AttributeScript>();
 
         hands = GetComponentInChildren<HandScript>();
         frontPoint = transform.Find("FrontPoint");
 
+        attributes.InitializeAttributes();
         currentSpeed = attributes.GetMaxSpeed();
 
         CheckForPossession();
@@ -65,22 +63,6 @@ public class PlayerScript : MonoBehaviour
     public void LateUpdate()
     {
         physics.UpdatePhysics();
-    }
-
-    //Makes sure the player is facing the correct way
-    public void HandleOrientation(float xMovement)
-    {
-        float rotation = transform.rotation.y;
-
-        bool needsFlip = (rotation == 0) ? (xMovement < 0) : (xMovement > 0);
-
-        if (needsFlip) {
-            rotation = (rotation == 0) ? 180f : 0f;
-            transform.rotation = Quaternion.AngleAxis(rotation, Vector3.up);
-
-            //Set a variable to track it other places
-            facingRight = transform.rotation.y == 0 ? true : false;
-        }
     }
 
     //Adjusts the current speed to sprint or not
@@ -185,19 +167,31 @@ public class PlayerScript : MonoBehaviour
 
     private void InitializeValues()
     {
+        currentMoveDirection = Vector2.zero;
         isOffense = false;
         facingRight = true;
+        isFrozen = false;
     }
 
     public float GetCurrentSpeed() { return currentSpeed; }
 
+    public Vector2 GetCurrentMoveDirection() { return currentMoveDirection; }
+
+    public void SetCurrentMoveDirection(Vector2 currentMoveDirection) { this.currentMoveDirection = currentMoveDirection;  }
+
     public bool IsOffense() { return isOffense; }
+
+    public bool IsFrozen() { return isFrozen; }
+
+    public void SetFrozen(bool isFrozen) { this.isFrozen = isFrozen; }
 
     public void SetHasBall(bool newHasBall) { hasBall = newHasBall; }
 
     public bool GetHasBall() { return hasBall; }
 
     public bool GetFacingRight() { return facingRight; }
+
+    public void SetFacingRight(bool facingRight) { this.facingRight = facingRight; }
 
     public PlayerScript GetTeammate() { return teammate; }
 
@@ -208,4 +202,9 @@ public class PlayerScript : MonoBehaviour
     public GoalScript GetGoal() { return teamScript.getCurrentSide().getGoalScript(); }
 
     public void SetShotZoneName(string newShotZoneName) { shotZoneName = newShotZoneName; }
+
+    public AttributeSO GetAttributes()
+    {
+        return attributes;
+    }
 }

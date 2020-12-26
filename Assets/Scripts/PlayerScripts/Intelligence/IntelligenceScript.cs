@@ -1,17 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class IntelligenceScript : MonoBehaviour
 {
     protected PlayerScript player;
     protected ActionsScript actions;
 
-    protected  Vector2 moveDirection;
+    public virtual void Start()
+    {
+        actions = transform.parent.GetComponentInParent<ActionsScript>();
+        player = transform.parent.GetComponentInParent<PlayerScript>();
+
+        SetMoveDirection(Vector2.zero);
+    }
 
     public abstract void FixedUpdateIntelligence();
 
     public abstract void UpdateIntelligence();
 
-    public Vector2 GetMoveDirection() { return moveDirection; }
+    public void SetMoveDirection(Vector2 moveDirection) { player.SetCurrentMoveDirection(moveDirection); }
 }
