@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
@@ -68,7 +67,9 @@ public class BallScript : MonoBehaviour
         currentPlayer = target;
 
         gameLogic.UpdatePossession(target);
-        target.SetFrozen(false);
+
+        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
+        targetState.SetFrozen(false);
     }
 
     public void StealPass(PlayerScript defender, PlayerScript target)
@@ -81,7 +82,9 @@ public class BallScript : MonoBehaviour
         transform.SetParent(defender.GetHands());
 
         gameLogic.UpdatePossession(defender);
-        target.SetFrozen(false);
+        
+        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
+        targetState.SetFrozen(false);
     }
 
     private void StealEvent(PlayerScript defender)
@@ -110,15 +113,16 @@ public class BallScript : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        target.SetFrozen(true);
+        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
+        targetState.SetFrozen(true);
 
         //Handle the physics of the pass
         physics.StartPass(target);
         SetBallState(BallState.PASSING);
 
         //Dettach the ball from the player and notify the player
-        currentPlayer.SetHasBall(false);
         transform.SetParent(looseBallContainer);
+        targetState.SetFrozen(false);
     }
 
     private void ShootEvent(GoalScript goal, bool madeShot)
@@ -129,7 +133,9 @@ public class BallScript : MonoBehaviour
         SetBallState(BallState.SHOOTING);
 
         //Dettach the ball from the player and notify the player
-        currentPlayer.SetHasBall(false);
+        PlayerStateScript playerState = currentPlayer.GetComponent<PlayerStateScript>();
+        playerState.SetFrozen(false);
+
         transform.SetParent(looseBallContainer);
     }
 

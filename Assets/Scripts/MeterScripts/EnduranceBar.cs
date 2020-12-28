@@ -6,7 +6,6 @@ public class EnduranceBar : MonoBehaviour
     private enum BarState { FILLING, CONSUMING, STEADY, COOLDOWN }
     private BarState barState;
 
-    //TODO Make sure we absolutely need this dependency on player
     private PlayerScript player;
     private ActionsScript actions;
     private Slider meter;
@@ -78,13 +77,11 @@ public class EnduranceBar : MonoBehaviour
 
     private void SprintBeginEvent()
     {
-        player.HandleSprintSpeed(true);
         barState = BarState.CONSUMING;
     }
 
     private void SprintEndEvent()
     {
-        player.HandleSprintSpeed(false);
         if (barState == BarState.CONSUMING) {
             barState = BarState.FILLING;
         }
@@ -109,7 +106,7 @@ public class EnduranceBar : MonoBehaviour
     {
         if(value == 0) {
             barState = BarState.COOLDOWN;
-            actions.events.EnduranceDepleted();
+            actions.EnduranceDepleted();
         }
     }
 

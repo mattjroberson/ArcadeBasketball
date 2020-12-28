@@ -2,13 +2,13 @@
 
 public abstract class IntelligenceScript : MonoBehaviour
 {
-    protected PlayerScript player;
     protected ActionsScript actions;
+    protected PlayerStateScript playerStates;
 
     public virtual void Start()
     {
-        actions = transform.parent.GetComponentInParent<ActionsScript>();
-        player = transform.parent.GetComponentInParent<PlayerScript>();
+        actions = GetComponentInParent<ActionsScript>();
+        playerStates = GetComponentInParent<PlayerStateScript>();
 
         SetMoveDirection(Vector2.zero);
     }
@@ -17,5 +17,5 @@ public abstract class IntelligenceScript : MonoBehaviour
 
     public abstract void UpdateIntelligence();
 
-    public void SetMoveDirection(Vector2 moveDirection) { player.SetCurrentMoveDirection(moveDirection); }
+    public void SetMoveDirection(Vector2 moveDirection) { playerStates.SetCurrentMoveDirection(moveDirection); }
 }

@@ -8,7 +8,7 @@ public class ArtificialIntelligence : IntelligenceScript
 
     public override void UpdateIntelligence()
     {
-        //TODO This is just placeholder for movement 
-        player.SetCurrentMoveDirection(Vector2.zero);
+        //This is just placeholder for movement 
+        playerStates.SetCurrentMoveDirection(Vector2.zero);
     }
 }

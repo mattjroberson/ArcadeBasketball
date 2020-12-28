@@ -119,5 +119,16 @@ public class GameLogicScript : MonoBehaviour
         return false;
     }
 
+    //Check to see if the player is going to make the shot
+    public static bool CalculateIfMadeShot(float shotPercentage)
+    {
+        //Random value between 0 - 1
+        float chance = Random.value;
+
+        //If chance is within shotPercentage, return true
+        if (chance <= shotPercentage) return true;
+        else return false;
+    }
+
     public BallScript GetBasketball() { return basketball; }
 }

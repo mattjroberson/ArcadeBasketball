@@ -85,10 +85,10 @@ public class ObjectLayerSorter : MonoBehaviour
             i++;
 
             //If the player has the ball set its order
-            if (player.GetHasBall() == true) {
-                basketballSprite.sortingOrder = i;
-                i++;
-            }
+            //if (player.GetHasBall() == true) {
+            //    basketballSprite.sortingOrder = i;
+            //    i++;
+            //}
         }
     }
 

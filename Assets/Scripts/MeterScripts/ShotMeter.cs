@@ -8,7 +8,6 @@ public class ShotMeter : MonoBehaviour
     private enum BarState { FILLING, DROPPING, PAUSED }
     private BarState barState;
 
-    //TODO Make sure we absolutely need this dependency on player
     private PlayerScript player;
     private ActionsScript actions;
     private Slider meter;
@@ -79,7 +78,7 @@ public class ShotMeter : MonoBehaviour
     private void CheckEmpty()
     {
         if (value == meter.minValue) {
-            actions.events.WalkViolation();
+            actions.WalkViolation();
         }
     }
 }

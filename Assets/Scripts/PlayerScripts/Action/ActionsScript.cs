@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class ActionsScript : MonoBehaviour
 {
     private PlayerScript player;
+    private PlayerStateScript playerStates;
     public ActionEvents events;
 
     //TODO Convert to super class instead of interface???
@@ -10,6 +12,9 @@ public class ActionsScript : MonoBehaviour
     private IAction sprintAction;
     private ShootAction shootAction;
     private IAction dunkAction;
+
+    private int stealAttempts;
+    private float stealAttemptTimer;
 
     public void Awake()
     {
@@ -19,6 +24,7 @@ public class ActionsScript : MonoBehaviour
     public void Start()
     {
         player = GetComponent<PlayerScript>();
+        playerStates = GetComponent<PlayerStateScript>();
 
         jumpAction = new JumpAction(this);
         sprintAction = new SprintAction(this);
@@ -32,6 +38,9 @@ public class ActionsScript : MonoBehaviour
     public void InitializeShot()
     {
         events.ShotInit();
+
+        if (playerStates.GetInDunkRange()) dunkAction.Start();
+        else shootAction.Start();
     }
 
     public void StartPassing()
@@ -50,14 +59,43 @@ public class ActionsScript : MonoBehaviour
 
     public void AttemptSteal()
     {
+        IncrementStealAttempts();
+
         //Do nothing if the defender fouled
-        if (player.CheckForStealFoul() == true) return;
+        if (CheckForStealFoul() == true) return;
 
         //If probability calculated for a steal, steal ball
         if (Random.value <= player.GetAttributes().GetStealProbability())
         {
             GameEvents.events.BallStolen(player);
         }
+    }
+
+    private void IncrementStealAttempts()
+    {
+        if (stealAttempts == 0) StartCoroutine(ClearStealAttempts());
+        stealAttempts++;
+    }
+
+    private IEnumerator ClearStealAttempts()
+    {
+        yield return new WaitForSeconds(player.GetAttributes().GetStealAttemptWindow());
+        stealAttempts = 0;
+    }
+
+    private bool CheckForStealFoul()
+    {
+        if (stealAttempts > player.GetAttributes().GetStealAttemptLimit())
+        {
+            //If the probability results in a foul, return true
+            if (Random.value <= player.GetAttributes().GetStealFoulProbability())
+            {
+                Debug.Log("Player Fouled");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void PickupLooseBall(PlayerScript player)
@@ -67,9 +105,14 @@ public class ActionsScript : MonoBehaviour
 
     public void CompleteShotProcess()
     {
-        bool madeShot = player.CalculateMadeShot();
+        float probability = player.GetAttributes().GetShotPercentage(playerStates.GetShotZoneName());
+        bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
         GameEvents.events.BallShot(player.GetGoal(), madeShot);
     }
+
+    public void EnduranceDepleted() { events.EnduranceDepleted(); }
+
+    public void WalkViolation() { events.WalkViolation(); }
 
     public IAction GetJumpAction() { return jumpAction; }
 

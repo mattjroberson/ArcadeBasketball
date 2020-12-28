@@ -44,7 +44,7 @@ public class UserIntelligence : IntelligenceScript
     
     private void UpdateSwitchLogic() {
         if (inputController.ReadSwitchPressed()) {
-            if (player.GetHasBall() == true) {
+            if (playerStates.GetHasBall() == true) {
                 actions.StartPassing();
             }
         }
@@ -53,7 +53,7 @@ public class UserIntelligence : IntelligenceScript
     private void UpdateStealLogic()
     {
         if (inputController.ReadStealPressed()) {
-            if (player.IsOffense() == false) {
+            if (playerStates.IsOffense() == false) {
                 actions.ReachForSteal();
             }
         }
@@ -61,7 +61,7 @@ public class UserIntelligence : IntelligenceScript
 
     private void DecideJumpOrShoot(bool isStart)
     {
-        if(player.GetHasBall() == true) {
+        if(playerStates.GetHasBall() == true) {
             if (isStart == true) actions.InitializeShot();
             else actions.GetShootAction().Stop();
         }
