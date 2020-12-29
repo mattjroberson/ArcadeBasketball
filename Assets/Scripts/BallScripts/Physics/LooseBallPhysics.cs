@@ -104,7 +104,7 @@ public class LooseBallPhysics
     private Vector2 CalculateReboundFloor()
     {
         Vector2 underBasket = physics.GetTargetGoal().underBasket.position;
-        Vector2 shootingPlayerPos = physics.GetBallScript().GetCurrentPlayer().GetFrontPoint().position;
+        Vector2 shootingPlayerPos = physics.GetBallScript().GetCurrentPlayer().FrontPoint.position;
         float reboundFloorY;
 
         //If player is below the basket

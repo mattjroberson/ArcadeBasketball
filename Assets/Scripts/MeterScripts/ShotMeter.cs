@@ -15,7 +15,9 @@ public class ShotMeter : MonoBehaviour
     private Quaternion lockedRotation;
 
     private float fillSpeed;
+    
     private float value;
+    public float Value => value;
 
     public void Start()
     {
@@ -26,7 +28,7 @@ public class ShotMeter : MonoBehaviour
         barState = BarState.PAUSED;
         value = meter.minValue;
 
-        fillSpeed = (meter.maxValue - meter.minValue) / player.GetAttributes().GetShotMeterSpeed() * 2;
+        fillSpeed = (meter.maxValue - meter.minValue) / player.Attributes.GetShotMeterSpeed() * 2;
 
         actions.events.onShootBegin += ShootBeginEvent;
         actions.events.onShootEnd += ShootEndEvent;
@@ -65,8 +67,6 @@ public class ShotMeter : MonoBehaviour
                 break;
         }
     }
-
-    public float GetValue() { return value; }
 
     private void CheckFull()
     {

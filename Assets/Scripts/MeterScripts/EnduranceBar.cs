@@ -32,7 +32,7 @@ public class EnduranceBar : MonoBehaviour
         actions = transform.parent.parent.GetComponentInParent<ActionsScript>();
         meter = GetComponent<Slider>();
 
-        value = player.GetAttributes().GetMaxEndurance();
+        value = player.Attributes.GetMaxEndurance();
         meter.maxValue = value;
 
         actions.events.onSprintBegin += SprintBeginEvent;
@@ -95,11 +95,6 @@ public class EnduranceBar : MonoBehaviour
     private void ShootEndEvent()
     {
         transform.parent.gameObject.SetActive(true);
-    }
-
-    public bool HasEndurance()
-    {
-        return value > 0;
     }
 
     private void CheckEmpty()

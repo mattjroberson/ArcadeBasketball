@@ -2,46 +2,34 @@
 
 public class PlayerScript : MonoBehaviour
 {
-    [SerializeField]
-    private AttributeSO attributes;
-    [SerializeField]
-    private PlayerScript teammate;
+    [SerializeField] private AttributeSO attributes;
+    public AttributeSO Attributes => attributes;
+    
+    [SerializeField] private PlayerScript teammate;
+    public PlayerScript Teammate => teammate;
+
+    [SerializeField] private PlayerScript defender;
+    public PlayerScript Defender => defender;
 
     private TeamScript teamScript;
-
-    private IntelligenceContainer intelligence;
-    private PlayerStateScript states;
+    public TeamScript Team => teamScript;
 
     private HandScript hands;
-    private Transform frontPoint;
+    public Transform Hands => hands.transform;
 
+    private Transform frontPoint;
+    public Transform FrontPoint => frontPoint;
+
+    public GoalScript CurrentGoal => Team.getCurrentSide().getGoalScript();
+    
     public void Start()
     {
         teamScript = transform.GetComponentInParent<TeamScript>();
-        intelligence = GetComponentInChildren<IntelligenceContainer>();
-        states = GetComponent<PlayerStateScript>();
 
         hands = GetComponentInChildren<HandScript>();
         frontPoint = transform.Find("FrontPoint");
 
         attributes.InitializeAttributes();
-    }
-
-    public void Update()
-    {
-        //Handles the players intelligence
-        intelligence.Current().UpdateIntelligence();
-    }
-
-    //TODO Make this event driven 
-    public Transform GetHands() { return hands.transform; }
-
-    //TODO Make this Event Driven
-    //Update the possession and players intelligence, called from GameLogic
-    public void HandlePossession(bool newHasBall, IntelligenceContainer.IntelligenceType intelType)
-    {
-        states.SetHasBall(newHasBall);
-        intelligence.SetIntelligenceType(intelType);
     }
 
     //TODO Maybe this can be moved to a better place.
@@ -58,15 +46,4 @@ public class PlayerScript : MonoBehaviour
         }
         else return false;
     }
-
-    public PlayerScript GetTeammate() { return teammate; }
-
-    public AttributeSO GetAttributes()
-    {
-        return attributes;
-    }
-
-    public Transform GetFrontPoint() { return frontPoint; }
-
-    public GoalScript GetGoal() { return teamScript.getCurrentSide().getGoalScript(); }
 }

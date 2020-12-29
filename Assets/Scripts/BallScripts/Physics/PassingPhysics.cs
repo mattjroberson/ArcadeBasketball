@@ -40,9 +40,9 @@ public class PassingPhysics
     public void StartPass(PlayerScript targetPlayer)
     {
         this.targetPlayer = targetPlayer;
-        teammatePlayer = targetPlayer.GetTeammate();
+        teammatePlayer = targetPlayer.Teammate;
 
-        physics.SetTarget(targetPlayer.GetHands().position);
+        physics.SetTarget(targetPlayer.Hands.position);
 
         Vector2 newVelocity = CalculateVelocity(physics.GetTarget());
         physics.SetVelocity(newVelocity);
@@ -68,7 +68,7 @@ public class PassingPhysics
 
             PlayerScript defender = collisions[0].transform.GetComponent<PlayerScript>();
 
-            physics.SetPosition(defender.GetHands().position);
+            physics.SetPosition(defender.Hands.position);
             physics.GetBallScript().StealPass(defender, targetPlayer);
         }
     }

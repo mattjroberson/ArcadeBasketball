@@ -22,6 +22,17 @@ public class GameEvents : MonoBehaviour
         onBallPassed?.Invoke(target);
     }
 
+    public event Action<PlayerScript> onPassReceived;
+    public void PassReceived(PlayerScript receiver)
+    {
+        onPassReceived?.Invoke(receiver);
+    }
+    public event Action<PlayerScript> onPassStolen;
+    public void PassStolen(PlayerScript receiver)
+    {
+        onPassStolen?.Invoke(receiver);
+    }
+
     public event Action<PlayerScript> onBallStolen;
     public void BallStolen(PlayerScript defender)
     {
@@ -32,6 +43,12 @@ public class GameEvents : MonoBehaviour
     public void LooseBallPickup(PlayerScript player)
     {
         onLooseBallPickup?.Invoke(player);
+    }
+
+    public event Action<PlayerScript> onPossessionChange;
+    public void PossessionChange(PlayerScript newBallHandler)
+    {
+        onPossessionChange?.Invoke(newBallHandler);
     }
 
 }

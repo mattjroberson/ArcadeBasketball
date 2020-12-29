@@ -72,7 +72,7 @@ public class ObjectLayerSorter : MonoBehaviour
                     ground -= (basketballSprite.size.y / 2);
 
                     //If the balls last ground position is behind (>) player, put it here
-                    if (ground >= player.GetFrontPoint().position.y) {
+                    if (ground >= player.FrontPoint.position.y) {
                         basketballSprite.sortingOrder = i;
                         ballSorted = true;
                         i++;
@@ -95,8 +95,8 @@ public class ObjectLayerSorter : MonoBehaviour
     //Sort by the Y Position
     static int SortByY(PlayerScript p1, PlayerScript p2)
     {
-        float p1_y = p1.GetFrontPoint().position.y;
-        float p2_y = p2.GetFrontPoint().position.y;
+        float p1_y = p1.FrontPoint.position.y;
+        float p2_y = p2.FrontPoint.position.y;
 
         return p2_y.CompareTo(p1_y);
     }
@@ -106,7 +106,9 @@ public class ObjectLayerSorter : MonoBehaviour
     {
         //Get references to the players involved in the pass
         PlayerScript currentPlayer = basketball.GetCurrentPlayer();
-        PlayerScript targetPlayer = basketball.GetTargetPlayer();
+        
+        //TODO THIS LINE IS BROKEN!!!
+        PlayerScript targetPlayer = basketball.GetCurrentPlayer();
 
         //Do nothing if the evaluated player is part of the pass
         if (player == currentPlayer) return false;

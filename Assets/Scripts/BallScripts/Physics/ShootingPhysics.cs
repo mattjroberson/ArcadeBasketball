@@ -118,9 +118,9 @@ public class ShootingPhysics
     //Returns true if the defender is between the shooter & the basket and close to shooter
     private bool IsDefenderInShotPath(PlayerScript defender)
     {
-        Vector2 p1 = physics.GetBallScript().GetCurrentPlayer().GetFrontPoint().position;
+        Vector2 p1 = physics.GetBallScript().GetCurrentPlayer().FrontPoint.position;
         Vector2 p2 = targetGoal.baseOfGoal.position;
-        Vector2 p3 = defender.GetFrontPoint().position;
+        Vector2 p3 = defender.FrontPoint.position;
 
         Vector2 a1 = p1 - p2;
         Vector2 a2 = p3 - p2;

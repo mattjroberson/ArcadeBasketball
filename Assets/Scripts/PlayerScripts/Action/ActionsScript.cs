@@ -33,20 +33,25 @@ public class ActionsScript : MonoBehaviour
 
         events.onWalkViolation += shootAction.PlayerWalked;
         events.onEnduranceDepleted += sprintAction.Stop;
+
+        GameEvents.events.onPossessionChange += PossessionChangeEvent;
+        GameEvents.events.onBallPassed += BallPassedEvent;
+        GameEvents.events.onPassReceived += PassReceivedEvent;
+        GameEvents.events.onPassStolen += PassStolenEvent;
     }
 
     public void InitializeShot()
     {
         events.ShotInit();
 
-        if (playerStates.GetInDunkRange()) dunkAction.Start();
+        if (playerStates.InDunkRange) dunkAction.Start();
         else shootAction.Start();
     }
 
     public void StartPassing()
     {
         //Get a reference to the target
-        PlayerScript target = player.GetTeammate();
+        PlayerScript target = player.Teammate;
         
         events.PassBegin(target.transform);
         GameEvents.events.BallPassed(target);
@@ -65,7 +70,7 @@ public class ActionsScript : MonoBehaviour
         if (CheckForStealFoul() == true) return;
 
         //If probability calculated for a steal, steal ball
-        if (Random.value <= player.GetAttributes().GetStealProbability())
+        if (Random.value <= player.Attributes.GetStealProbability())
         {
             GameEvents.events.BallStolen(player);
         }
@@ -79,16 +84,16 @@ public class ActionsScript : MonoBehaviour
 
     private IEnumerator ClearStealAttempts()
     {
-        yield return new WaitForSeconds(player.GetAttributes().GetStealAttemptWindow());
+        yield return new WaitForSeconds(player.Attributes.GetStealAttemptWindow());
         stealAttempts = 0;
     }
 
     private bool CheckForStealFoul()
     {
-        if (stealAttempts > player.GetAttributes().GetStealAttemptLimit())
+        if (stealAttempts > player.Attributes.GetStealAttemptLimit())
         {
             //If the probability results in a foul, return true
-            if (Random.value <= player.GetAttributes().GetStealFoulProbability())
+            if (Random.value <= player.Attributes.GetStealFoulProbability())
             {
                 Debug.Log("Player Fouled");
                 return true;
@@ -98,6 +103,26 @@ public class ActionsScript : MonoBehaviour
         return false;
     }
 
+    private void PossessionChangeEvent(PlayerScript newBallHandler)
+    {
+        playerStates.HasBall = (newBallHandler == player);
+    }
+
+    private void BallPassedEvent(PlayerScript receiver)
+    {
+        if (player == receiver) playerStates.IsFrozen = true;
+    }
+
+    private void PassReceivedEvent(PlayerScript receiver)
+    {
+        if (player == receiver) playerStates.IsFrozen = false;
+    }
+
+    private void PassStolenEvent(PlayerScript receiver)
+    {
+        if (player == receiver) playerStates.IsFrozen = false;
+    }
+
     public void PickupLooseBall(PlayerScript player)
     {
         GameEvents.events.LooseBallPickup(player);
@@ -105,9 +130,9 @@ public class ActionsScript : MonoBehaviour
 
     public void CompleteShotProcess()
     {
-        float probability = player.GetAttributes().GetShotPercentage(playerStates.GetShotZoneName());
+        float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
         bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
-        GameEvents.events.BallShot(player.GetGoal(), madeShot);
+        GameEvents.events.BallShot(player.CurrentGoal, madeShot);
     }
 
     public void EnduranceDepleted() { events.EnduranceDepleted(); }

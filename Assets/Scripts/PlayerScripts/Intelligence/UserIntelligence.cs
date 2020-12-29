@@ -7,9 +7,7 @@ public class UserIntelligence : IntelligenceScript
     private bool jumpPressed;
     private bool sprintPressed;
 
-    public override void Start()
-    {
-        base.Start();
+    public UserIntelligence(IntelligenceContainer intelligence) : base(intelligence) {
         inputController = GameObject.Find("InputController").GetComponent<InputController>();
     }
 
@@ -44,8 +42,12 @@ public class UserIntelligence : IntelligenceScript
     
     private void UpdateSwitchLogic() {
         if (inputController.ReadSwitchPressed()) {
-            if (playerStates.GetHasBall() == true) {
+            if (playerStates.HasBall) {
                 actions.StartPassing();
+            }
+            else
+            {
+                Debug.Log("test");
             }
         }
     }
@@ -53,7 +55,7 @@ public class UserIntelligence : IntelligenceScript
     private void UpdateStealLogic()
     {
         if (inputController.ReadStealPressed()) {
-            if (playerStates.IsOffense() == false) {
+            if (playerStates.IsOffense == false) {
                 actions.ReachForSteal();
             }
         }
@@ -61,7 +63,7 @@ public class UserIntelligence : IntelligenceScript
 
     private void DecideJumpOrShoot(bool isStart)
     {
-        if(playerStates.GetHasBall() == true) {
+        if(playerStates.HasBall) {
             if (isStart == true) actions.InitializeShot();
             else actions.GetShootAction().Stop();
         }

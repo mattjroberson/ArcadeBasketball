@@ -1,14 +1,4 @@
 Tie Dunk into ball shooting / miss
 
-Possession Bug after pass stolen user loses control
-	Potential Reasoning? Ball not refactored with event system
-
-	When this is fixed: test the ball swipe event system. Couldnt do it
-		with bug
-
-Movement Bug: When Intelligence Changes with a pass event, and the user moves through the switch, 
-	the computer retains the user movement vector
-
-Artifial Intelligence Bug: OffBallOffense is running on a defender to start
-
 Dunk Bug: When player position is (5.6, -0.83), dunk looks glitchy, lands player out of bounds
+

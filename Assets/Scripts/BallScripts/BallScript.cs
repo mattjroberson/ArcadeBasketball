@@ -13,8 +13,6 @@ public class BallScript : MonoBehaviour
     private SpriteRenderer sprite;
 
     private PlayerScript currentPlayer;
-    private PlayerScript targetPlayer;
-    private GameLogicScript gameLogic;
 
     private Vector2 madeShotBallFloor;
     private Vector2 ballFloor;
@@ -29,12 +27,8 @@ public class BallScript : MonoBehaviour
     public void Start()
     {
         looseBallContainer = GameObject.Find("LooseBallContainer").transform;
-        gameLogic = GameObject.Find("GameLogic").GetComponent<GameLogicScript>();
         physics = GetComponent<BallPhysicsScript>();
         sprite = GetComponent<SpriteRenderer>();
-
-        //Get a reference to the current ball handler
-        currentPlayer = transform.GetComponentInParent<PlayerScript>();
 
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
 
@@ -59,43 +53,23 @@ public class BallScript : MonoBehaviour
 
     public void RecievePass(PlayerScript target)
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
-
-        //Attach the ball to the player and update game logic, unfreeze player
-        transform.SetParent(target.GetHands());
-        currentPlayer = target;
-
-        gameLogic.UpdatePossession(target);
-
-        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
-        targetState.SetFrozen(false);
+        ChangePossession(target);
+        GameEvents.events.PassReceived(target);
     }
 
     public void StealPass(PlayerScript defender, PlayerScript target)
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
-
-        //Attach the ball to the player and update game logic, unfreeze target player
-        currentPlayer = defender;
-        transform.SetParent(defender.GetHands());
-
-        gameLogic.UpdatePossession(defender);
-        
-        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
-        targetState.SetFrozen(false);
+        ChangePossession(defender);
+        GameEvents.events.PassStolen(target);
     }
 
     private void StealEvent(PlayerScript defender)
     {
-        //Attach the ball to the defender and clear its local position
-        currentPlayer = defender;
-        transform.SetParent(defender.GetHands());
+        ChangePossession(defender);
+
+        //clear its local position
         physics.SetLocalPosition(Vector2.zero);
 
-        //Update the game logic
-        gameLogic.UpdatePossession(defender);
     }
 
     private void LooseBallPickupEvent(PlayerScript player)
@@ -106,15 +80,11 @@ public class BallScript : MonoBehaviour
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
     {
         ActionsScript currentActionsScript = target.GetComponent<ActionsScript>();
-        targetPlayer = target;
 
         //Wait till the player is on the ground to pass
         while (currentActionsScript.GetJumpAction().IsActive()) {
             yield return new WaitForSeconds(0.1f);
         }
-
-        PlayerStateScript targetState = target.GetComponent<PlayerStateScript>();
-        targetState.SetFrozen(true);
 
         //Handle the physics of the pass
         physics.StartPass(target);
@@ -122,7 +92,6 @@ public class BallScript : MonoBehaviour
 
         //Dettach the ball from the player and notify the player
         transform.SetParent(looseBallContainer);
-        targetState.SetFrozen(false);
     }
 
     private void ShootEvent(GoalScript goal, bool madeShot)
@@ -131,10 +100,6 @@ public class BallScript : MonoBehaviour
 
         physics.StartShot(goal);
         SetBallState(BallState.SHOOTING);
-
-        //Dettach the ball from the player and notify the player
-        PlayerStateScript playerState = currentPlayer.GetComponent<PlayerStateScript>();
-        playerState.SetFrozen(false);
 
         transform.SetParent(looseBallContainer);
     }
@@ -147,28 +112,30 @@ public class BallScript : MonoBehaviour
 
     public void GrabBall(PlayerScript player)
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
-
-        //Attach the ball to the player and update game logic
-        currentPlayer = player;
-        transform.SetParent(player.GetHands());
-        physics.SetPosition(player.GetHands().position);
-
-        gameLogic.UpdatePossession(player);
+        ChangePossession(player);
     }
 
     public void BlockShot()
     {
-        Debug.Log("shot blocked");
         SetBallState(BallState.LOOSE);
-        SetBallFloor(currentPlayer.GetFrontPoint().position);
+        SetBallFloor(currentPlayer.FrontPoint.position);
         DrawShadow();
 
         physics.StartBlock();
     }
 
-    public void DrawShadow()
+    private void ChangePossession(PlayerScript newBallHandler)
+    {
+        currentPlayer = newBallHandler;
+        ballState = BallState.POSESSED;
+
+        transform.SetParent(currentPlayer.Hands);
+        physics.SetPosition(currentPlayer.Hands.position);
+
+        GameEvents.events.PossessionChange(newBallHandler);
+    }
+
+    private void DrawShadow()
     {
         float timeTillGround = physics.CalculateTimeTillGround();
 
@@ -189,8 +156,6 @@ public class BallScript : MonoBehaviour
     public Vector2 GetTargetPosition() { return physics.GetTarget(); }
 
     public PlayerScript GetCurrentPlayer() { return currentPlayer; }
-
-    public PlayerScript GetTargetPlayer() { return targetPlayer; }
 
     public bool GetMadeShot() { return madeShot; }
 

@@ -22,15 +22,15 @@ public class FrontPointScript : MonoBehaviour
     {
         if (other.name == "auto_dunk")
         {
-            playerStates.SetInAuoDunkZone(true);
+            playerStates.InAutoDunkZone = val;
         }
         else if (other.name == "moving_dunk")
         {
-            playerStates.SetInMovingDunkZone(true);
+            playerStates.InMovingDunkZone = val;
         }
         else if (other.tag == "shotZone")
         {
-            playerStates.SetShotZoneName(other.name);
+            if(val == true) playerStates.ShotZoneName = other.name;
         }
     }
 }

@@ -3,54 +3,92 @@
 public class IntelligenceContainer : MonoBehaviour
 {
     public enum IntelligenceType { USER, OFFBALL_OFF, ONBALL_OFF, OFFBALL_DEF, ONBALL_DEF };
+    [SerializeField] private IntelligenceType intelType;
 
-    public IntelligenceType intelType;
+    private ActionsScript actions;
+    public ActionsScript Actions => actions;
+   
+    private PlayerStateScript playerStates;
+    public PlayerStateScript PlayerStates => playerStates;
+
+    private PlayerScript player;
 
     private IntelligenceScript current;
-    private UserIntelligence userIntelligence;
-    private OffBallOffenseIntelligence offBallOffenseIntelligence;
-    private OnBallOffenseIntelligence onBallOffenseIntelligence;
-    private OffBallDefenseIntelligence offBallDefenseIntelligence;
-    private OnBallDefenseIntelligence onBallDefenseIntelligence;
+    private IntelligenceScript userIntel;
+    private IntelligenceScript offBallOffIntel;
+    private IntelligenceScript onBallOffIntel;
+    private IntelligenceScript offBallDefIntel;
+    private IntelligenceScript onBallDefIntel;
 
     public void Start()
     {
-        userIntelligence = GetComponent<UserIntelligence>();
-        offBallOffenseIntelligence = GetComponent<OffBallOffenseIntelligence>();
-        onBallOffenseIntelligence = GetComponent<OnBallOffenseIntelligence>();
-        offBallDefenseIntelligence = GetComponent<OffBallDefenseIntelligence>();
-        onBallDefenseIntelligence = GetComponent<OnBallDefenseIntelligence>();
+        player = GetComponentInParent<PlayerScript>();
+        actions = GetComponentInParent<ActionsScript>();
+        playerStates = GetComponentInParent<PlayerStateScript>();
+
+        userIntel = new UserIntelligence(this);
+        offBallOffIntel = new OffBallOffenseIntelligence(this);
+        onBallOffIntel = new OnBallOffenseIntelligence(this);
+        offBallDefIntel = new OffBallDefenseIntelligence(this);
+        onBallDefIntel = new OnBallDefenseIntelligence(this);
 
         SetIntelligenceType(intelType);
+
+        GameEvents.events.onPossessionChange += PossessionChangeEvent;
     }
 
-    public void SetIntelligenceType(IntelligenceType type)
+    public void Update()
+    {
+        current.UpdateIntelligence();
+    }
+
+    private void SetIntelligenceType(IntelligenceType type)
     {
         intelType = type;
 
         switch (type) {
             case IntelligenceType.USER:
-                current = userIntelligence;
+                current = userIntel;
                 break;
             case IntelligenceType.OFFBALL_OFF:
-                current = offBallOffenseIntelligence;
+                current = offBallOffIntel;
                 break;
             case IntelligenceType.ONBALL_OFF:
-                current = onBallOffenseIntelligence;
+                current = onBallOffIntel;
                 break;
             case IntelligenceType.OFFBALL_DEF:
-                current = offBallDefenseIntelligence;
+                current = offBallDefIntel;
                 break;
             case IntelligenceType.ONBALL_DEF:
-                current = onBallDefenseIntelligence;
+                current = onBallDefIntel;
                 break;
             default:
                 Debug.LogWarning("Intelligence Type Not Found");
                 break;
         }
     }
-    
-    //Returns the current Intelligence Script
-    public IntelligenceScript Current() { return current; }
 
+    private void PossessionChangeEvent(PlayerScript newBallHandler)
+    {
+        if (player.Team.UserControlled)
+        {
+            if (newBallHandler == player) SetIntelligenceType(IntelligenceType.USER);
+            else if (newBallHandler == player.Teammate) SetIntelligenceType(IntelligenceType.OFFBALL_OFF);
+            else if (newBallHandler == player.Defender)
+            {
+                if (intelType != IntelligenceType.USER) SetIntelligenceType(IntelligenceType.ONBALL_DEF);
+            }
+            else
+            {
+                if (intelType != IntelligenceType.USER) SetIntelligenceType(IntelligenceType.OFFBALL_DEF);
+            }
+        }
+        else
+        {
+            if (newBallHandler == player) SetIntelligenceType(IntelligenceType.ONBALL_OFF);
+            else if (newBallHandler == player.Teammate) SetIntelligenceType(IntelligenceType.OFFBALL_OFF);
+            else if (newBallHandler == player.Defender) SetIntelligenceType(IntelligenceType.ONBALL_DEF);
+            else SetIntelligenceType(IntelligenceType.OFFBALL_DEF);
+        }
+    }
 }

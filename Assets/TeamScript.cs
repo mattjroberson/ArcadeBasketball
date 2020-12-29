@@ -7,6 +7,10 @@ public class TeamScript : MonoBehaviour
     public enum CourtSide { LEFT, RIGHT };
     public CourtSide currentSide;
 
+    [SerializeField]
+    private bool userControlled;
+    public bool UserControlled => userControlled;
+
     private SideManager sideManager;
 
     void Awake()

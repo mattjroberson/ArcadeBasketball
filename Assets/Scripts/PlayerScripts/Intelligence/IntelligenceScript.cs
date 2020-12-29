@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
 
-public abstract class IntelligenceScript : MonoBehaviour
+public abstract class IntelligenceScript
 {
+    protected IntelligenceContainer intelligence;
     protected ActionsScript actions;
     protected PlayerStateScript playerStates;
 
-    public virtual void Start()
+    public IntelligenceScript(IntelligenceContainer intelligence)
     {
-        actions = GetComponentInParent<ActionsScript>();
-        playerStates = GetComponentInParent<PlayerStateScript>();
+        this.intelligence = intelligence;
+
+        actions = intelligence.Actions;
+        playerStates = intelligence.PlayerStates;
 
         SetMoveDirection(Vector2.zero);
     }
@@ -17,5 +20,5 @@ public abstract class IntelligenceScript : MonoBehaviour
 
     public abstract void UpdateIntelligence();
 
-    public void SetMoveDirection(Vector2 moveDirection) { playerStates.SetCurrentMoveDirection(moveDirection); }
+    public void SetMoveDirection(Vector2 moveDirection) { playerStates.CurrentMoveDirection = moveDirection; }
 }

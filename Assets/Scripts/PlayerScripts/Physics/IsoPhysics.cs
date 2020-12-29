@@ -34,7 +34,7 @@ public class IsoPhysics : MonoBehaviour
         feetCollider = GetComponent<CapsuleCollider2D>();
         rb = GetComponent<Rigidbody2D>();
 
-        currentSpeed = player.GetAttributes().GetMaxSpeed();
+        currentSpeed = player.Attributes.GetMaxSpeed();
         currentState = MoveState.RUNNING;
 
         actions.events.onJumpBegin += JumpBeginEvent;
@@ -63,11 +63,12 @@ public class IsoPhysics : MonoBehaviour
 
     private void RunningUpdate()
     {
-        if (playerStates.IsFrozen()) return;
+        //TODO Maybe move this to Intelligence? Or at least higher up in this class
+        if (playerStates.IsFrozen) return;
 
         Vector2 currentPos = rb.position;
 
-        Vector2 inputVector = playerStates.GetCurrentMoveDirection();
+        Vector2 inputVector = playerStates.CurrentMoveDirection;
         inputVector = Vector2.ClampMagnitude(inputVector, 1);
 
         Vector2 movement = inputVector * currentSpeed;
@@ -79,7 +80,7 @@ public class IsoPhysics : MonoBehaviour
 
     private void JumpBeginEvent()
     {
-        jumpVelocity = new Vector2(0, player.GetAttributes().GetMaxJump());
+        jumpVelocity = new Vector2(0, player.Attributes.GetMaxJump());
         floorY = rb.position.y;
 
         feetCollider.enabled = false;
@@ -149,17 +150,17 @@ public class IsoPhysics : MonoBehaviour
 
     private void SprintBeginEvent()
     {
-        currentSpeed *= player.GetAttributes().GetSprintBonus();
+        currentSpeed *= player.Attributes.GetSprintBonus();
     }
 
     private void SprintEndEvent()
     {
-        currentSpeed = player.GetAttributes().GetMaxSpeed();
+        currentSpeed = player.Attributes.GetMaxSpeed();
     }
 
     private void FaceGoal()
     {
-        GoalScript goal = player.GetGoal();
+        GoalScript goal = player.CurrentGoal;
 
         bool faceRight = (transform.position.x < goal.basketCenter.position.x) ? true : false;
         if (goal.isRightGoal == false) faceRight = !faceRight;
