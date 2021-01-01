@@ -13,10 +13,11 @@ public class OnBallDefenseIntelligence : ArtificialIntelligence
     public override void FixedUpdateIntelligence() { }
 
     public override void UpdateIntelligence() {
-        //i++;
-        //if (i > gap) {
-        //    i = 0;
-        //    actions.StartJumping();
-        //}
+        i++;
+        if (i > gap)
+        {
+            i = 0;
+            actions.GetJumpAction().Start(1.1f);
+        }
     }
 }

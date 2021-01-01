@@ -15,7 +15,7 @@ public class IsoPhysics : MonoBehaviour
     //Jumping Variables
     private CapsuleCollider2D feetCollider;
     private Vector2 jumpVelocity;
-    private float floorY;
+    private float jumpY;
     private const float FLOOR_MARGIN = .01f;
 
     //Dunking Variables
@@ -78,13 +78,13 @@ public class IsoPhysics : MonoBehaviour
         rb.MovePosition(newPos);
     }
 
-    private void JumpBeginEvent()
+    private void JumpBeginEvent(float scalar)
     {
-        jumpVelocity = new Vector2(0, player.Attributes.GetMaxJump());
-        floorY = rb.position.y;
+        jumpVelocity = new Vector2(0, player.Attributes.GetMaxJump() * scalar);
+        playerStates.FloorPos = player.FrontPoint.FloorPosition;
+        jumpY = rb.position.y;
 
-        feetCollider.enabled = false;
-
+        SetAirborn(true);
         currentState = MoveState.JUMPING;
     }
 
@@ -95,16 +95,16 @@ public class IsoPhysics : MonoBehaviour
         Vector2 distMoved = jumpVelocity * Time.deltaTime;
         rb.MovePosition(rb.position + distMoved);
 
-        if (rb.position.y <= (floorY - FLOOR_MARGIN)) JumpingStop();
+        if (rb.position.y <= (jumpY - FLOOR_MARGIN)) JumpingStop();
     }
 
     private void JumpingStop()
     {
-        rb.MovePosition(new Vector2(rb.position.x, floorY));
+        rb.MovePosition(new Vector2(rb.position.x, jumpY));
 
-        feetCollider.enabled = true;
-
+        SetAirborn(false);
         currentState = MoveState.RUNNING;
+        
         actions.GetJumpAction().Stop();
     }
 
@@ -112,7 +112,8 @@ public class IsoPhysics : MonoBehaviour
     {  
         dunkTrajectory = TrajectoryScript.CalculateTrajectory(rb.position, DUNK_TARGET, DUNK_ANGLE, DUNK_ARC_PEAK_PERCENT);
 
-        feetCollider.enabled = false;
+
+        SetAirborn(true);
         currentState = MoveState.DUNKING;
     }
 
@@ -132,7 +133,7 @@ public class IsoPhysics : MonoBehaviour
 
     private void DunkingStop()
     {
-        floorY = DUNK_FLOOR;
+        playerStates.FloorPos = new Vector2(rb.position.x, DUNK_FLOOR);
 
         currentState = MoveState.JUMPING;
         actions.GetDunkAction().Stop();
@@ -166,6 +167,12 @@ public class IsoPhysics : MonoBehaviour
         if (goal.isRightGoal == false) faceRight = !faceRight;
 
         HandleOrientation(faceRight ? 1 : -1);
+    }
+
+    private void SetAirborn(bool airborn)
+    {
+        playerStates.IsAirborn = airborn;
+        feetCollider.enabled = !airborn;
     }
 
     private void FacePlayer(Transform target)

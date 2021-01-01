@@ -40,7 +40,7 @@ public class DetectionPhysics : MonoBehaviour
 
         RaycastProperties rayProps = type.Equals("steal") ? stealRaycastProps : shootRaycastProps;
         
-        Vector2 raySource = player.FrontPoint.position;
+        Vector2 raySource = player.FrontPoint.FloorPosition;
         Vector2 rayRotation = type.Equals("steal") ? Vector2.zero : GetDirectionToGoal(raySource);
         Vector2 rayDirection = facingRight ? Vector2.right : Vector2.left;
 
@@ -108,6 +108,12 @@ public class DetectionPhysics : MonoBehaviour
         }
 
         return null;
+    }
+
+    //TODO Make this more precise. Currently triggers for hands and feet
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "basketball") actions.TouchBall();
     }
 
     class RaycastProperties

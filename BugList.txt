@@ -2,3 +2,12 @@ Tie Dunk into ball shooting / miss
 
 Dunk Bug: When player position is (5.6, -0.83), dunk looks glitchy, lands player out of bounds
 
+Refactor GameEvents and BallEvents into proper singletons
+
+Refactor ActionScript Steal Logic into its own action class
+
+Refactor Action Classes into similar structures
+
+Reconsider how FrontPoint is referenced across scripts
+
+Examine References and Dependencies across Player (out of date)

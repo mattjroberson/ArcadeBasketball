@@ -19,7 +19,7 @@ public class ShootAction : IAction
         isShooting = true;
         playerWalked = false;
 
-        actions.GetJumpAction().Start();
+        actions.GetJumpAction().Start(.5f);
         actions.events.ShootBegin();
     }
 

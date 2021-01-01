@@ -52,51 +52,51 @@ public class ObjectLayerSorter : MonoBehaviour
         bool ballSorted = false;
 
         //Set the Layer for each Player
-        foreach (PlayerScript player in players) {
-            //If the ball isnt possessed and hasnt been sorted account for its sorting order
-            if (BallScript.GetBallState() != BallScript.BallState.POSESSED && ballSorted == false) {
+        //foreach (PlayerScript player in players) {
+        //    //If the ball isnt possessed and hasnt been sorted account for its sorting order
+        //    if (BallScript.GetBallState() != BallScript.BallState.POSESSED && ballSorted == false) {
 
-                //If ball is being passed
-                if (BallScript.GetBallState() == BallScript.BallState.PASSING) {
-                    //If path is behind a player, order it behind
-                    if (IsPassPathBehindPlayer(player) == true) {
-                        basketballSprite.sortingOrder = i;
+        //        //If ball is being passed
+        //        if (BallScript.GetBallState() == BallScript.BallState.PASSING) {
+        //            //If path is behind a player, order it behind
+        //            if (IsPassPathBehindPlayer(player) == true) {
+        //                basketballSprite.sortingOrder = i;
 
-                        ballSorted = true;
-                        i++;
-                    }
-                }
-                //If ball is shooting or falling, use the balls ground position as it order
-                else {
-                    float ground = basketball.GetFloor().y;
-                    ground -= (basketballSprite.size.y / 2);
+        //                ballSorted = true;
+        //                i++;
+        //            }
+        //        }
+        //        //If ball is shooting or falling, use the balls ground position as it order
+        //        else {
+        //            float ground = basketball.GetFloor().y;
+        //            ground -= (basketballSprite.size.y / 2);
 
-                    //If the balls last ground position is behind (>) player, put it here
-                    if (ground >= player.FrontPoint.position.y) {
-                        basketballSprite.sortingOrder = i;
-                        ballSorted = true;
-                        i++;
-                    }
-                }
-            }
+        //            //If the balls last ground position is behind (>) player, put it here
+        //            if (ground >= player.FrontPoint.position.y) {
+        //                basketballSprite.sortingOrder = i;
+        //                ballSorted = true;
+        //                i++;
+        //            }
+        //        }
+        //    }
 
-            //Set the players render order
-            playerSprites[player].sortingOrder = i;
-            i++;
+        //    //Set the players render order
+        //    playerSprites[player].sortingOrder = i;
+        //    i++;
 
-            //If the player has the ball set its order
-            //if (player.GetHasBall() == true) {
-            //    basketballSprite.sortingOrder = i;
-            //    i++;
-            //}
-        }
+        //    //If the player has the ball set its order
+        //    //if (player.GetHasBall() == true) {
+        //    //    basketballSprite.sortingOrder = i;
+        //    //    i++;
+        //    //}
+        //}
     }
 
     //Sort by the Y Position
     static int SortByY(PlayerScript p1, PlayerScript p2)
     {
-        float p1_y = p1.FrontPoint.position.y;
-        float p2_y = p2.FrontPoint.position.y;
+        float p1_y = p1.FrontPoint.FloorPosition.y;
+        float p2_y = p2.FrontPoint.FloorPosition.y;
 
         return p2_y.CompareTo(p1_y);
     }
@@ -105,10 +105,10 @@ public class ObjectLayerSorter : MonoBehaviour
     private bool IsPassPathBehindPlayer(PlayerScript player)
     {
         //Get references to the players involved in the pass
-        PlayerScript currentPlayer = basketball.GetCurrentPlayer();
+        PlayerScript currentPlayer = basketball.CurrentHandler;
         
         //TODO THIS LINE IS BROKEN!!!
-        PlayerScript targetPlayer = basketball.GetCurrentPlayer();
+        PlayerScript targetPlayer = basketball.CurrentHandler;
 
         //Do nothing if the evaluated player is part of the pass
         if (player == currentPlayer) return false;

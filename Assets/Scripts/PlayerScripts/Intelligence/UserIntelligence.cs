@@ -68,7 +68,7 @@ public class UserIntelligence : IntelligenceScript
             else actions.GetShootAction().Stop();
         }
         else {
-            if (isStart == true) actions.GetJumpAction().Start();
+            if (isStart == true) actions.GetJumpAction().Start(1);
             //TODO implement jump exit, right now floaty bug happens
             //else actions.GetJumpAction().Stop();
         }

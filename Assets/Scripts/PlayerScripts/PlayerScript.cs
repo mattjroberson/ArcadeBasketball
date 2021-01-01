@@ -17,8 +17,8 @@ public class PlayerScript : MonoBehaviour
     private HandScript hands;
     public Transform Hands => hands.transform;
 
-    private Transform frontPoint;
-    public Transform FrontPoint => frontPoint;
+    private FrontPointScript frontPoint;
+    public FrontPointScript FrontPoint => frontPoint;
 
     public GoalScript CurrentGoal => Team.getCurrentSide().getGoalScript();
     
@@ -27,23 +27,8 @@ public class PlayerScript : MonoBehaviour
         teamScript = transform.GetComponentInParent<TeamScript>();
 
         hands = GetComponentInChildren<HandScript>();
-        frontPoint = transform.Find("FrontPoint");
+        frontPoint = GetComponentInChildren<FrontPointScript>();
 
         attributes.InitializeAttributes();
-    }
-
-    //TODO Maybe this can be moved to a better place.
-    //Checks if the player is within a margin from where the rebound is landing
-    public bool IsInReboundRange(float rbndFloorY)
-    {
-        float playerY = frontPoint.position.y;
-        float rbndFloorMargin = .4f;
-
-        //If player is above floor - margin and above floor + margin return true
-        if (playerY > rbndFloorY - rbndFloorMargin && playerY < rbndFloorY + rbndFloorMargin)
-        {
-            return true;
-        }
-        else return false;
     }
 }

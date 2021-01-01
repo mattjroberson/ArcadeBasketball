@@ -8,13 +8,12 @@ public class ActionsScript : MonoBehaviour
     public ActionEvents events;
 
     //TODO Convert to super class instead of interface???
-    private IAction jumpAction;
+    private JumpAction jumpAction;
     private IAction sprintAction;
     private ShootAction shootAction;
     private IAction dunkAction;
 
     private int stealAttempts;
-    private float stealAttemptTimer;
 
     public void Awake()
     {
@@ -35,9 +34,8 @@ public class ActionsScript : MonoBehaviour
         events.onEnduranceDepleted += sprintAction.Stop;
 
         GameEvents.events.onPossessionChange += PossessionChangeEvent;
-        GameEvents.events.onBallPassed += BallPassedEvent;
+        GameEvents.events.onPassSent += PassSentEvent;
         GameEvents.events.onPassReceived += PassReceivedEvent;
-        GameEvents.events.onPassStolen += PassStolenEvent;
     }
 
     public void InitializeShot()
@@ -48,15 +46,30 @@ public class ActionsScript : MonoBehaviour
         else shootAction.Start();
     }
 
-    public void StartPassing()
+    public void CompleteShotProcess()
     {
-        //Get a reference to the target
-        PlayerScript target = player.Teammate;
-        
-        events.PassBegin(target.transform);
-        GameEvents.events.BallPassed(target);
+        float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
+        bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
+        BallEvents.events.BallShot(player.CurrentGoal, madeShot);
+
+        playerStates.HasBall = false;
     }
 
+    public void StartPassing()
+    {
+        PlayerScript target = player.Teammate;
+
+        events.PassBegin(target.transform);
+        BallEvents.events.BallPassed(target);
+    }
+
+    public void TouchBall()
+    {
+        if (playerStates.HasBall) return;
+        BallEvents.events.BallTouched(player);
+    }
+
+    #region StealLogic
     public void ReachForSteal()
     {
         events.SwipeBegin();
@@ -72,7 +85,7 @@ public class ActionsScript : MonoBehaviour
         //If probability calculated for a steal, steal ball
         if (Random.value <= player.Attributes.GetStealProbability())
         {
-            GameEvents.events.BallStolen(player);
+            BallEvents.events.BallStolen(player);
         }
     }
 
@@ -102,44 +115,28 @@ public class ActionsScript : MonoBehaviour
 
         return false;
     }
+    #endregion
 
     private void PossessionChangeEvent(PlayerScript newBallHandler)
     {
         playerStates.HasBall = (newBallHandler == player);
     }
 
-    private void BallPassedEvent(PlayerScript receiver)
+    private void PassSentEvent(PlayerScript receiver)
     {
-        if (player == receiver) playerStates.IsFrozen = true;
+        if (player == receiver) playerStates.WaitingOnPass = true;
     }
 
     private void PassReceivedEvent(PlayerScript receiver)
     {
-        if (player == receiver) playerStates.IsFrozen = false;
-    }
-
-    private void PassStolenEvent(PlayerScript receiver)
-    {
-        if (player == receiver) playerStates.IsFrozen = false;
-    }
-
-    public void PickupLooseBall(PlayerScript player)
-    {
-        GameEvents.events.LooseBallPickup(player);
-    }
-
-    public void CompleteShotProcess()
-    {
-        float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
-        bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
-        GameEvents.events.BallShot(player.CurrentGoal, madeShot);
+        if (playerStates.WaitingOnPass) playerStates.WaitingOnPass = false;
     }
 
     public void EnduranceDepleted() { events.EnduranceDepleted(); }
 
     public void WalkViolation() { events.WalkViolation(); }
 
-    public IAction GetJumpAction() { return jumpAction; }
+    public JumpAction GetJumpAction() { return jumpAction; }
 
     public IAction GetSprintAction() { return sprintAction; }
 

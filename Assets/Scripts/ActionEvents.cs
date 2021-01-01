@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class ActionEvents
 {
-    public event Action onJumpBegin;
-    public void JumpBegin()
+    public event Action<float> onJumpBegin;
+    public void JumpBegin(float scalar)
     {
-        onJumpBegin?.Invoke();
+        onJumpBegin?.Invoke(scalar);
     }
 
     public event Action onJumpEnd;

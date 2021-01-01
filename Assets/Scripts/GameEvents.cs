@@ -10,16 +10,16 @@ public class GameEvents : MonoBehaviour
         events = this;
     }
 
-    public event Action<GoalScript, bool> onBallShot;
-    public void BallShot(GoalScript goal, bool madeShot)
+    public event Action<PlayerScript> onPossessionChange;
+    public void PossessionChange(PlayerScript newBallHandler)
     {
-        onBallShot?.Invoke(goal, madeShot);
+        onPossessionChange?.Invoke(newBallHandler);
     }
 
-    public event Action<PlayerScript> onBallPassed;
-    public void BallPassed(PlayerScript target)
+    public event Action<PlayerScript> onPassSent;
+    public void PassSent(PlayerScript receiver)
     {
-        onBallPassed?.Invoke(target);
+        onPassSent?.Invoke(receiver);
     }
 
     public event Action<PlayerScript> onPassReceived;
@@ -27,28 +27,4 @@ public class GameEvents : MonoBehaviour
     {
         onPassReceived?.Invoke(receiver);
     }
-    public event Action<PlayerScript> onPassStolen;
-    public void PassStolen(PlayerScript receiver)
-    {
-        onPassStolen?.Invoke(receiver);
-    }
-
-    public event Action<PlayerScript> onBallStolen;
-    public void BallStolen(PlayerScript defender)
-    {
-        onBallStolen?.Invoke(defender);
-    }
-
-    public event Action<PlayerScript> onLooseBallPickup;
-    public void LooseBallPickup(PlayerScript player)
-    {
-        onLooseBallPickup?.Invoke(player);
-    }
-
-    public event Action<PlayerScript> onPossessionChange;
-    public void PossessionChange(PlayerScript newBallHandler)
-    {
-        onPossessionChange?.Invoke(newBallHandler);
-    }
-
 }

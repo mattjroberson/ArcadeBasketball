@@ -59,7 +59,7 @@ public class AnimatorScript : MonoBehaviour
         SetSprite(SpriteType.DEFAULT);
     }
 
-    private void JumpBeginEvent()
+    private void JumpBeginEvent(float scalar)
     {
         SetSprite(SpriteType.JUMPING);
     }

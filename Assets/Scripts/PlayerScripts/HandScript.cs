@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class HandScript : MonoBehaviour
 {
-
-    private BoxCollider2D handsCollider;
-
     private Vector2 handsUp;
     private Vector2 handsDown;
     private Vector2 handsDunking;
@@ -26,9 +23,14 @@ public class HandScript : MonoBehaviour
         actions.events.onDunkEnd += SetHandsDown;
     }
 
-    private void SetHandsUp() { transform.localPosition = handsUp; }
+    private void SetHandsUp(float scalar) { transform.localPosition = handsUp; }
 
     private void SetHandsDown() { transform.localPosition = handsDown; }
 
     private void SetHandsDunking() { transform.localPosition = handsDunking;}
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        actions.TouchBall();
+    }
 }

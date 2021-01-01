@@ -6,6 +6,7 @@ TagManager:
   tags:
   - shotZone
   - dunkZone
+  - basketball
   layers:
   - Default
   - TransparentFX
@@ -19,10 +20,10 @@ TagManager:
   - CourtBounds
   - HandColliders
   - BallCollider
-  - BallOnCourtFilter
-  - ReboundFilter
-  - DefenderFilter
+  - FrontPointColliders
   - CourtZones
+  - DefenderFilter
+  - 
   - 
   - 
   - 

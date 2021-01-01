@@ -10,9 +10,12 @@ public class PlayerStateScript : MonoBehaviour
 
     public string ShotZoneName { get; set; }
     public bool HasBall { get; set; }
-    public bool IsFrozen { get; set; }
+    public bool WaitingOnPass { get; set; }
+    public bool IsAirborn { get; set; }
+    public bool IsFrozen => WaitingOnPass;
     public bool IsOffense { get; }
     public Vector2 CurrentMoveDirection { get; set; }
+    public Vector2 FloorPos { get; set; }
 
     public void Start()
     {
@@ -21,7 +24,8 @@ public class PlayerStateScript : MonoBehaviour
         CheckForPossession();
 
         CurrentMoveDirection = Vector2.zero;
-        IsFrozen = false;
+        WaitingOnPass = false;
+        IsAirborn = false;
     }
 
     private void CheckForPossession()

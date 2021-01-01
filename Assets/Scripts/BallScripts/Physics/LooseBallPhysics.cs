@@ -1,134 +1,125 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class LooseBallPhysics 
 {
     private BallPhysicsScript physics;
-    private ContactFilter2D rbndContactFilter;
+    private BallScript ball;
 
-    private float minimumBounceVelocity;
-    private float ballBounceFactor;
-
-    private float minBlockVelocityX;
-    private float maxBlockVelocityX;
-    private float blockVelocityY;
-
-    public LooseBallPhysics(BallPhysicsScript physics)
+    public LooseBallPhysics(BallPhysicsScript physics, BallScript ball)
     {
         this.physics = physics;
-
-        minimumBounceVelocity = 1f;
-        ballBounceFactor = .60f;
-
-        minBlockVelocityX = .1f;
-        maxBlockVelocityX = 3f;
-        blockVelocityY = .1f;
-
-        rbndContactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(LayerMask.NameToLayer("ReboundFilter")));
-        rbndContactFilter.useLayerMask = true;
-        rbndContactFilter.useTriggers = false;
+        this.ball = ball;
     }
 
-    public void StartRebound()
+    public void BounceOffBlock()
     {
-        physics.SetVelocity(CalculateReboundVelocity());
-        physics.GetBallScript().SetBallFloor(CalculateReboundFloor());
+        //Generate a new velocity within given ranges
+        Vector2 blockedVelocity = new Vector2(Random.Range(physics.Fields.MinBlockVelocityX,
+            physics.Fields.MaxBlockVelocityX), physics.Fields.BlockVelocityY);
+
+        //Flip the velocity if necessary
+        if(physics.Shooting.TargetGoal.isRightGoal) blockedVelocity.x *= -1;
+
+        physics.Velocity = blockedVelocity;
+        ball.BallFloor = ball.CurrentHandler.FrontPoint.FloorPosition;
     }
 
-    public void StartBlock()
+    public void BounceOffGoal()
     {
-        physics.SetVelocity(CalculateShotBlockVelocity());
+        bool isRight = physics.Shooting.TargetGoal.isRightGoal;
+        float shotSpeed = physics.Shooting.ShootingSpeed;
+
+        float underBasketY = physics.Shooting.TargetGoal.underBasket.position.y;
+        float shooterY = ball.CurrentHandler.FrontPoint.FloorPosition.y;
+
+        physics.Velocity = CalculateReboundVelocity(isRight, shotSpeed);
+        ball.BallFloor = CalculateReboundFloor(shooterY, underBasketY);
+    }
+
+    public void DropFromGoal(Vector2 ballFloor)
+    {
+        physics.Velocity = Vector2.zero;
+        ball.BallFloor = ballFloor;
     }
 
     public void Update()
     {
-        //Actually update the position
-        Vector2 newVelocity = physics.GetVelocity() + Physics2D.gravity * Time.deltaTime;
-        physics.SetVelocity(newVelocity);
+        Vector2 newVelocity = physics.Velocity + Physics2D.gravity * Time.deltaTime;
+        physics.Velocity = newVelocity;
 
-        Vector2 movement = physics.GetVelocity() * Time.deltaTime;
+        Vector2 movement = physics.Velocity * Time.deltaTime;
         physics.Move(movement);
 
         //If player back on ground, bounce or stop
-        if (physics.GetBallTransform().position.y < physics.GetBallScript().GetFloor().y) {
+        if (physics.transform.position.y <  ball.BallFloor.y) {
             //Set the ball to the floor and x velocity to 0 so it bounces straight up
-            physics.SetPosition(new Vector2(physics.GetBallTransform().position.x, physics.GetBallScript().GetFloor().y));
+            physics.SetPosition(new Vector2(physics.transform.position.x, ball.BallFloor.y));
 
-            newVelocity = physics.GetVelocity();
+            newVelocity = physics.Velocity;
             newVelocity.x = 0;
-            physics.SetVelocity(newVelocity);
+            physics.Velocity = newVelocity;
 
-            if (Mathf.Abs(physics.GetVelocity().y) < minimumBounceVelocity) {
-                BallScript.SetBallState(BallScript.BallState.ON_GROUND);
+            if (Mathf.Abs(physics.Velocity.y) < physics.Fields.MinBounceVelocity) {
+                ball.State = BallScript.BallState.ON_GROUND;
             }
             else {
-                newVelocity = physics.GetVelocity() * -1 * ballBounceFactor;
-                physics.SetVelocity(newVelocity);
+                newVelocity = physics.Velocity * -1 * physics.Fields.BounceFactor;
+                physics.Velocity = newVelocity;
             }
         }
-
-        CheckIfRebounded();
     }
-
-    private void CheckIfRebounded()
+    public static bool IsInReboundRange(FrontPointScript frontPoint, Vector2 ballFloor)
     {
-        RaycastHit2D[] collisions = new RaycastHit2D[16];
+        float playerY = frontPoint.FloorPosition.y;
+        float rbndFloorMargin = .4f;
 
-        int count = physics.GetBallCollider().Cast(Vector2.zero, rbndContactFilter, collisions, 0);
+        float rbndFloorY = ballFloor.y;
 
-        //For every player the ball collided with
-        for (int i = 0; i < count; i++) {
-
-            PlayerScript testPlayer = collisions[i].transform.GetComponent<PlayerScript>();
-
-            //If the player is in an acceptable spot to rebound, rebound
-            if (testPlayer.IsInReboundRange(physics.GetBallScript().GetFloor().y)) {
-                physics.GetBallScript().GrabBall(testPlayer);
-                return;
-            }
+        //If player is above floor - margin and above floor + margin return true
+        if (playerY > rbndFloorY - rbndFloorMargin && playerY < rbndFloorY + rbndFloorMargin)
+        {
+            return true;
         }
+        else return false;
     }
 
     //Calculate the velocity of the ball bouncing off the goal
-    private Vector2 CalculateReboundVelocity()
+    public static Vector2 CalculateReboundVelocity(bool isRightGoal, float shootingSpeed)
     {
         //Bounce in the opposite direction of the goal
-        Vector2 bounceDirection = physics.GetTargetGoal().isRightGoal ? new Vector2(-1, 1) : new Vector2(1, 1);
+        Vector2 bounceDirection = isRightGoal ? new Vector2(-1, 1) : new Vector2(1, 1);
 
         //Bounce porportional to the shooting speed dampened
-        return (bounceDirection * Mathf.Abs(physics.GetShootingSpeed()) * .5f);
+        return (bounceDirection * Mathf.Abs(shootingSpeed) * .5f);
     }
 
     //Calculate the position the ball should land on a missed shot
-    private Vector2 CalculateReboundFloor()
+    public static Vector2 CalculateReboundFloor(float shootingPlayerY, float underBasketY)
     {
-        Vector2 underBasket = physics.GetTargetGoal().underBasket.position;
-        Vector2 shootingPlayerPos = physics.GetBallScript().GetCurrentPlayer().FrontPoint.position;
         float reboundFloorY;
 
         //If player is below the basket
-        if (shootingPlayerPos.y < underBasket.y) {
+        if (shootingPlayerY < underBasketY) {
             //Pick a random value between the player and the basket
-            reboundFloorY = Random.Range(shootingPlayerPos.y, underBasket.y);
+            reboundFloorY = Random.Range(shootingPlayerY, underBasketY);
         }
         //If player is above the basket
         else {
             //Pick a random value between the basket and the player
-            reboundFloorY = Random.Range(underBasket.y, shootingPlayerPos.y);
+            reboundFloorY = Random.Range(underBasketY, shootingPlayerY);
         }
 
         return new Vector2(0, reboundFloorY);
     }
 
-    private Vector2 CalculateShotBlockVelocity()
+    //TODO Fix Hardcoded values
+    public static float CalculateTimeTillGround(float initVelocityY, Vector2 ballFloor, Vector2 position)
     {
-        //Generate a new velocity within given ranges
-        Vector2 blockedVelocity = new Vector2(Random.Range(minBlockVelocityX, maxBlockVelocityX), blockVelocityY);
+        float displacementY = Mathf.Abs(ballFloor.y - position.y);
 
-        //Flip the velocity if necessary
-        if (physics.GetTargetGoal().isRightGoal) blockedVelocity.x *= -1;
-
-        return blockedVelocity;
+        float discriminant = Mathf.Pow(initVelocityY, 2) + (-4 * -4.9f * displacementY);
+        float numerator = -Mathf.Sqrt(discriminant) - initVelocityY;
+        return numerator / Physics2D.gravity.y;
     }
+
 }

@@ -1,5 +1,5 @@
 ﻿
-public class JumpAction : IAction
+public class JumpAction
 {
     private readonly ActionsScript actions;
     private bool isJumping;
@@ -10,12 +10,12 @@ public class JumpAction : IAction
         isJumping = false;
     }
 
-    public void Start()
+    public void Start(float scalar)
     {
         if (isJumping == false)
         {
             isJumping = true;
-            actions.events.JumpBegin();
+            actions.events.JumpBegin(scalar);
         }
     }
     public void Stop()

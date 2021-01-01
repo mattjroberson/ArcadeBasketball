@@ -4,10 +4,12 @@ public class FrontPointScript : MonoBehaviour
 {
     private PlayerStateScript playerStates;
 
+    public Vector2 FloorPosition => playerStates.IsAirborn ? playerStates.FloorPos : (Vector2)transform.position;
     void Start()
     {
         playerStates = GetComponentInParent<PlayerStateScript>();
     }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         IdentifyAndSetFlag(other, true);

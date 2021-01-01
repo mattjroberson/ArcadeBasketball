@@ -2,105 +2,49 @@
 
 public class BallPhysicsScript : MonoBehaviour
 {
-    private BallScript basketball;
-    private GoalScript targetGoal;
+    [SerializeField] private BallPhysicsAttributesSO fields;
+    public BallPhysicsAttributesSO Fields => fields;
+    public PassingPhysics Passing { get; set; }
+    public ShootingPhysics Shooting { get; set; }
+    public LooseBallPhysics LooseBall { get; set; }
 
-    private CircleCollider2D ballCollider;
-    private ContactFilter2D ballContactFilter;
+    public Vector2 Velocity { get; set; }
 
-    private PassingPhysics passingPhysics;
-    private ShootingPhysics shootingPhysics;
-    private LooseBallPhysics looseBallPhysics;
-
-    private Vector2 velocity;
-    private Vector2 target;
-
-    public void Awake()
-    {
-        ballContactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(LayerMask.NameToLayer("BallCollider")));
-        ballContactFilter.useLayerMask = true;
-        ballContactFilter.useTriggers = false;
-    }
+    private BallScript ball;
 
     public void Start()
     {
-        basketball = GetComponentInParent<BallScript>();
-        ballCollider = GetComponentInParent<CircleCollider2D>();
+        ball = GetComponentInParent<BallScript>();
 
-        passingPhysics = new PassingPhysics(this);
-        shootingPhysics = new ShootingPhysics(this);
-        looseBallPhysics = new LooseBallPhysics(this);
+        Passing = new PassingPhysics(this);
+        Shooting = new ShootingPhysics(this, ball);
+        LooseBall = new LooseBallPhysics(this, ball);
     }
 
     public void UpdatePhysics()
     {
-        switch (BallScript.GetBallState()) {
+        switch (ball.State) {
             case BallScript.BallState.PASSING:
-                passingPhysics.Update();
+                Passing.Update();
                 break;
             case BallScript.BallState.SHOOTING:
-                shootingPhysics.Update();
+                Shooting.Update();
                 break;
             case BallScript.BallState.LOOSE:
-                looseBallPhysics.Update();
+                LooseBall.Update();
                 break;
         }
-    }
-
-    //Return the time till the loose ball hits the floor
-    public float CalculateTimeTillGround()
-    {
-        float init_velocity_y = velocity.y;
-        float displacement_y = Mathf.Abs(basketball.GetFloor().y - transform.position.y);
-
-        float discriminant = Mathf.Pow(init_velocity_y, 2) + (-4 * -4.9f * displacement_y);
-        float numerator = -Mathf.Sqrt(discriminant) - init_velocity_y;
-        return numerator / Physics2D.gravity.y;
     }
 
     //Return the x position of the ball a given time
     public float CalculateXPositionAtTime(float time)
     {
-        return transform.position.x + (velocity.x * time);
+        return transform.position.x + (Velocity.x * time);
     }
 
     public void SetPosition(Vector2 position) { transform.position = position; }
 
-    public void SetLocalPosition(Vector2 localPosition) { transform.parent.localPosition = localPosition; }
-
     public void Move(Vector3 movement) { transform.parent.position += movement; }
-
-    public Vector2 GetVelocity() { return velocity; }
-
-    public void SetVelocity(Vector2 newVelocity) { velocity = newVelocity; }
-
-    public Vector2 GetTarget() { return target; }
-
-    public void SetTarget(Vector2 newTarget) { target = newTarget; }
-
-    public CircleCollider2D GetBallCollider() { return ballCollider; }
-
-    public Transform GetBallTransform() { return basketball.transform;  }
-
-    public BallScript GetBallScript() { return basketball;  }
-
-    public ContactFilter2D GetBallContactFilter() { return ballContactFilter; }
-
-    public GoalScript GetTargetGoal() { return targetGoal; }
-
-    //Sub physics extension methods
-    public void StartBlock() { looseBallPhysics.StartBlock();  }
-
-    public void StartRebound() { looseBallPhysics.StartRebound();  }
-
-    public void StartPass(PlayerScript target) { passingPhysics.StartPass(target); }
-
-    public float GetShootingSpeed() { return shootingPhysics.GetShootingSpeed(); }
-
-    public void StartShot(GoalScript targetGoal) {
-        this.targetGoal = targetGoal;
-        shootingPhysics.StartShot(targetGoal);
-    }
 }
 
 public static class ExtensionMethods
