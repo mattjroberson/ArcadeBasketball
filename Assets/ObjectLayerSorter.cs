@@ -105,10 +105,10 @@ public class ObjectLayerSorter : MonoBehaviour
     private bool IsPassPathBehindPlayer(PlayerScript player)
     {
         //Get references to the players involved in the pass
-        PlayerScript currentPlayer = basketball.CurrentHandler;
+        PlayerScript currentPlayer = basketball.GetBallHandler();
         
         //TODO THIS LINE IS BROKEN!!!
-        PlayerScript targetPlayer = basketball.CurrentHandler;
+        PlayerScript targetPlayer = basketball.GetBallHandler();
 
         //Do nothing if the evaluated player is part of the pass
         if (player == currentPlayer) return false;

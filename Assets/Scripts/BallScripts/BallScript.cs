@@ -4,34 +4,42 @@ using UnityEngine;
 public class BallScript : MonoBehaviour
 {
     public enum BallState { POSESSED, LOOSE, ON_GROUND, SHOOTING, PASSING }
-    public BallState State { get; set; }
 
-    [SerializeField] private const float BLOCK_COOLDOWN = 2;
+    private BallState state;
+    public BallState State => state;
 
-    public PlayerScript CurrentHandler { get; set; }
-    public Vector2 BallFloor { get; set; }
-   
-    private GameObject shadowPrefab;
+    [SerializeField] private BallPhysicsAttributesSO fields;
+    public BallPhysicsAttributesSO Fields => fields;
 
+    [SerializeField] private float BLOCK_COOLDOWN = 2;
+
+    private PassingPhysics passing;
+    private ShootingPhysics shooting;
+    private LooseBallPhysics looseBall;
+
+    private PlayerScript currentHandler;
     private Transform looseBallContainer;
-    private BallPhysicsScript physics;
-    private SpriteRenderer sprite;
-
     private bool ignoringBall;
 
-    public void Awake()
+    private SpriteRenderer sprite;
+    private GameObject shadowPrefab;
+
+    private void Awake()
     {
-        State = BallState.POSESSED;
+        state = BallState.POSESSED;
         ignoringBall = false;
     }
 
-    public void Start()
+    private void Start()
     {
+        passing = new PassingPhysics(this);
+        shooting = new ShootingPhysics(this);
+        looseBall = new LooseBallPhysics(this);
+
         looseBallContainer = GameObject.Find("LooseBallContainer").transform;
-        physics = GetComponent<BallPhysicsScript>();
         sprite = GetComponent<SpriteRenderer>();
 
-        CurrentHandler = GetComponentInParent<PlayerScript>();
+        currentHandler = GetComponentInParent<PlayerScript>();
 
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
 
@@ -41,11 +49,19 @@ public class BallScript : MonoBehaviour
         BallEvents.events.onBallStolen += StealEvent;
     }
 
-    public void FixedUpdate()
+    private void FixedUpdate()
     {
-        //Only apply physics if not in a players hands
-        if(State != BallState.POSESSED) {
-            physics.UpdatePhysics();
+        switch (State)
+        {
+            case BallState.PASSING:
+                passing.Update();
+                break;
+            case BallState.SHOOTING:
+                shooting.Update();
+                break;
+            case BallState.LOOSE:
+                looseBall.Update();
+                break;
         }
     }
 
@@ -66,53 +82,61 @@ public class BallScript : MonoBehaviour
         switch (State)
         {
             case BallState.PASSING:
-                GameEvents.events.PassReceived(player);
-                ChangePossession(player);
+                OnPassReceived(player);
                 break;
             case BallState.LOOSE:
-                if (LooseBallPhysics.IsInReboundRange(player.FrontPoint, BallFloor)) ChangePossession(player);
+                looseBall.CheckForRebound(player);
                 break;
             case BallState.ON_GROUND:
-                ChangePossession(player);
+                OnBallPickup(player);
                 break;
             case BallState.SHOOTING:
-                if (player == CurrentHandler) return;
-
-                if (ShootingPhysics.IsInBlockRange(CurrentHandler, player, physics.Shooting.TargetGoal, physics.Fields))
-                {
-                    physics.LooseBall.BounceOffBlock();
-                    StartCoroutine(BlockedShotCooldown());
-                    State = BallState.LOOSE;
-                    
-                    DrawShadow();
-                }
+                if (player == currentHandler) return;
+                shooting.CheckForBlock(currentHandler, player);
                 break;
         }
     }
-
+    
     private void ShootEvent(GoalScript goal, bool madeShot)
     {
-        physics.Shooting.StartShot(goal, madeShot);
-        State = BallState.SHOOTING;
+        shooting.StartShot(currentHandler, goal, madeShot);
+        state = BallState.SHOOTING;
 
         transform.SetParent(looseBallContainer);
+    }
+
+    private void OnPassReceived(PlayerScript player)
+    {
+        GameEvents.events.PassReceived(player);
+        ChangePossession(player);
+    }
+
+    public void OnBallPickup(PlayerScript player)
+    {
+        ChangePossession(player);
+    }
+
+    public void OnShotBlocked()
+    {
+        looseBall.BounceOffBlock(shooting.TargetGoal, currentHandler.FrontPoint.FloorPosition);
+        StartCoroutine(BlockedShotCooldown());
+        state = BallState.LOOSE;
+
+        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
     }
 
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
     {
         PlayerStateScript playerStates = target.GetComponent<PlayerStateScript>();
 
-        //Wait till the player is on the ground to pass
         while (playerStates.IsAirborn)
         {
             yield return new WaitForSeconds(0.1f);
         }
 
-        //Handle the physics of the pass
-        physics.Passing.StartPass(target);
-        State = BallState.PASSING;
+        passing.StartPass(target);
+        state = BallState.PASSING;
 
-        //Dettach the ball from the player and notify the player
         transform.SetParent(looseBallContainer);
         GameEvents.events.PassSent(target);
     }
@@ -126,30 +150,35 @@ public class BallScript : MonoBehaviour
 
     public void FinishShot()
     {
-        State = BallState.LOOSE;
-        DrawShadow();
+        state = BallState.LOOSE;
+        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
     }
+
+    public void CompleteBouncing()
+    {
+        state = BallState.ON_GROUND;
+    }
+
+    public void BounceOffGoal(GoalScript targetGoal, Vector2 shooterPos, float shotSpeed)
+    {
+        looseBall.BounceOffGoal(targetGoal, shooterPos, shotSpeed);
+    }
+
+    public void DropFromGoal(GoalScript targetGoal) 
+    { 
+        looseBall.DropFromGoal(targetGoal); 
+    }
+
+    public PlayerScript GetBallHandler() { return currentHandler; }
 
     private void ChangePossession(PlayerScript newBallHandler)
     {
-        CurrentHandler = newBallHandler;
-        State = BallState.POSESSED;
+        currentHandler = newBallHandler;
+        state = BallState.POSESSED;
 
-        transform.SetParent(CurrentHandler.Hands);
-        physics.SetPosition(CurrentHandler.Hands.position);
+        transform.SetParent(currentHandler.Hands);
+        transform.position = currentHandler.Hands.position;
 
         GameEvents.events.PossessionChange(newBallHandler);
-    }
-
-    private void DrawShadow()
-    {
-        float timeTillGround = LooseBallPhysics.CalculateTimeTillGround(physics.Velocity.y, BallFloor, transform.position);
-
-        Vector2 shadowPos = new Vector2();
-        shadowPos.x = physics.CalculateXPositionAtTime(timeTillGround);
-        shadowPos.y = BallFloor.y - (sprite.size.y / 2);
-
-        GameObject shadow = Instantiate(shadowPrefab, shadowPos, Quaternion.identity);
-        shadow.GetComponent<BallShadowScript>().Focus(timeTillGround);
     }
 }

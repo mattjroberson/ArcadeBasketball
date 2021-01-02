@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minBounceVelocity: 1
   bounceFactor: 0.6
+  reboundFloorMargin: 0.4
   minBlockVelocityX: 0.1
   maxBlockVelocityX: 3
   blockVelocityY: 0.1
   maxRegShotSpeed: 4
   minShotSpeed: 2.25
   maxShotSpeed: 5
+  shotSpeedDamper: 0.5
   shotAngleDegrees: 45
   shotAngleXPercent: 0.9
   shotLowerSpeedMod: 0.4

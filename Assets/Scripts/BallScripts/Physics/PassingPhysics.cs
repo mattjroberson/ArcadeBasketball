@@ -1,17 +1,12 @@
 ﻿using UnityEngine;
 
-public class PassingPhysics
+public class PassingPhysics : BallPhysicsType
 {
-    private BallPhysicsScript physics;
+    public PassingPhysics(BallScript ball) : base(ball) { }
 
-    public PassingPhysics(BallPhysicsScript physics)
+    public override void Update()
     {
-        this.physics = physics;
-    }
-
-    public void Update()
-    {
-        physics.Move(physics.Velocity * Time.deltaTime);
+        Move(velocity * Time.deltaTime);
     }
 
     public void StartPass(PlayerScript targetPlayer)
@@ -19,14 +14,14 @@ public class PassingPhysics
         Vector2 target = targetPlayer.Hands.position;
 
         Vector2 newVelocity = CalculateVelocity(target);
-        physics.Velocity = newVelocity;
+        velocity = newVelocity;
     }
 
     private Vector2 CalculateVelocity(Vector2 target)
     {
-        Vector2 straight_velocity = (target - (Vector2)physics.transform.position);
+        Vector2 straight_velocity = (target - Position);
         straight_velocity /= straight_velocity.magnitude;
 
-        return straight_velocity * physics.Fields.PassingSpeed;
+        return straight_velocity * fields.PassingSpeed;
     }
 }

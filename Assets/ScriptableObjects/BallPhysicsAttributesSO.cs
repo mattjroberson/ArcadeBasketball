@@ -10,6 +10,9 @@ public class BallPhysicsAttributesSO : ScriptableObject
     [SerializeField] private float bounceFactor;
     public float BounceFactor => bounceFactor;
 
+    [SerializeField] private float reboundFloorMargin;
+    public float ReboundFloorMargin => reboundFloorMargin;
+
     [SerializeField] private float minBlockVelocityX;
     public float MinBlockVelocityX => minBlockVelocityX;
 
@@ -28,6 +31,9 @@ public class BallPhysicsAttributesSO : ScriptableObject
 
     [SerializeField] private float maxShotSpeed;
     public float MaxShotSpeed => maxShotSpeed;
+
+    [SerializeField] private float shotSpeedDamper;
+    public float ShotSpeedDamper => shotSpeedDamper;
 
     [SerializeField] private float shotAngleDegrees;
     public float ShotAngle => shotAngleDegrees * (Mathf.PI / 180);
