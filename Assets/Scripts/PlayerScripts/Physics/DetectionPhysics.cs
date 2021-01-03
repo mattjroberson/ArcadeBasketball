@@ -29,7 +29,7 @@ public class DetectionPhysics : MonoBehaviour
 
     private void SwipeBeginEvent()
     {
-        if(IsPlayerInRange("steal")) actions.AttemptSteal();
+        if(IsPlayerInRange("steal")) actions.GetSwipeAction().Start();
     }
 
     //Raycasts to see if their is a player nearby by for stealing and shot contests.

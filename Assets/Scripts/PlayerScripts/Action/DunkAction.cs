@@ -1,4 +1,4 @@
-﻿public class DunkAction : IAction
+﻿public class DunkAction : ILongAction
 {
     private ActionsScript actions;
     private bool isDunking;

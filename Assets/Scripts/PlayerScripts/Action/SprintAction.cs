@@ -1,6 +1,6 @@
 ﻿
 
-public class SprintAction : IAction
+public class SprintAction : ILongAction
 {
     private ActionsScript actions;
     private bool isSprinting;

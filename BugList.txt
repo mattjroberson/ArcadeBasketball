@@ -2,11 +2,11 @@ Tie Dunk into ball shooting / miss
 
 Dunk Bug: When player position is (5.6, -0.83), dunk looks glitchy, lands player out of bounds
 
-Refactor GameEvents and BallEvents into proper singletons
+Shooting Bug: Shot Meter needs to be tied to the players jump modifier
 
-Refactor ActionScript Steal Logic into its own action class
+Ball Shooting Bug: Player Face Target doesnt respect left goal
 
-Refactor Action Classes into similar structures
+Loose Ball Bug: Player should not be able to rebound / steal with his foot collider
 
 Reconsider how FrontPoint is referenced across scripts
 

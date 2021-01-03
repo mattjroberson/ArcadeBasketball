@@ -1,14 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-public class GameEvents : MonoBehaviour
+public sealed class GameEvents
 {
-    public static GameEvents events;
-   
-    private void Awake()
-    {
-        events = this;
-    }
+    private static readonly GameEvents instance = new GameEvents();
+
+    static GameEvents() { }
+
+    private GameEvents() { }
+
+    public static GameEvents Instance => instance;
 
     public event Action<PlayerScript> onPossessionChange;
     public void PossessionChange(PlayerScript newBallHandler)
@@ -26,5 +27,11 @@ public class GameEvents : MonoBehaviour
     public void PassReceived(PlayerScript receiver)
     {
         onPassReceived?.Invoke(receiver);
+    }
+
+    public event Action<Vector2> onBallLoose;
+    public void BallLoose(Vector2 landingPos)
+    {
+        onBallLoose?.Invoke(landingPos);
     }
 }

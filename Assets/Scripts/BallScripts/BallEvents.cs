@@ -1,14 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-public class BallEvents : MonoBehaviour
+public class BallEvents
 {
-    public static BallEvents events;
+    private static readonly BallEvents instance = new BallEvents();
 
-    private void Awake()
-    {
-        events = this;
-    }
+    static BallEvents() { }
+
+    private BallEvents() { }
+
+    public static BallEvents Instance => instance;
 
     public event Action<GoalScript, bool> onBallShot;
     public void BallShot(GoalScript goal, bool madeShot)

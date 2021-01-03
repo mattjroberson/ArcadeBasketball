@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public class ShootAction : IAction
+public class ShootAction : ILongAction
 {
     private readonly ActionsScript actions;
     private bool isShooting;

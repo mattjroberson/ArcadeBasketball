@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ActionsScript : MonoBehaviour
 {
@@ -7,13 +6,11 @@ public class ActionsScript : MonoBehaviour
     private PlayerStateScript playerStates;
     public ActionEvents events;
 
-    //TODO Convert to super class instead of interface???
     private JumpAction jumpAction;
-    private IAction sprintAction;
+    private SprintAction sprintAction;
     private ShootAction shootAction;
-    private IAction dunkAction;
-
-    private int stealAttempts;
+    private DunkAction dunkAction;
+    private StealAction swipeAction;
 
     public void Awake()
     {
@@ -29,13 +26,14 @@ public class ActionsScript : MonoBehaviour
         sprintAction = new SprintAction(this);
         shootAction = new ShootAction(this);
         dunkAction = new DunkAction(this);
+        swipeAction = new StealAction(player);
 
         events.onWalkViolation += shootAction.PlayerWalked;
         events.onEnduranceDepleted += sprintAction.Stop;
 
-        GameEvents.events.onPossessionChange += PossessionChangeEvent;
-        GameEvents.events.onPassSent += PassSentEvent;
-        GameEvents.events.onPassReceived += PassReceivedEvent;
+        GameEvents.Instance.onPossessionChange += PossessionChangeEvent;
+        GameEvents.Instance.onPassSent += PassSentEvent;
+        GameEvents.Instance.onPassReceived += PassReceivedEvent;
     }
 
     public void InitializeShot()
@@ -50,7 +48,7 @@ public class ActionsScript : MonoBehaviour
     {
         float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
         bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
-        BallEvents.events.BallShot(player.CurrentGoal, madeShot);
+        BallEvents.Instance.BallShot(player.CurrentGoal, madeShot);
 
         playerStates.HasBall = false;
     }
@@ -60,62 +58,19 @@ public class ActionsScript : MonoBehaviour
         PlayerScript target = player.Teammate;
 
         events.PassBegin(target.transform);
-        BallEvents.events.BallPassed(target);
+        BallEvents.Instance.BallPassed(target);
     }
 
     public void TouchBall()
     {
         if (playerStates.HasBall) return;
-        BallEvents.events.BallTouched(player);
+        BallEvents.Instance.BallTouched(player);
     }
 
-    #region StealLogic
     public void ReachForSteal()
     {
         events.SwipeBegin();
     }
-
-    public void AttemptSteal()
-    {
-        IncrementStealAttempts();
-
-        //Do nothing if the defender fouled
-        if (CheckForStealFoul() == true) return;
-
-        //If probability calculated for a steal, steal ball
-        if (Random.value <= player.Attributes.GetStealProbability())
-        {
-            BallEvents.events.BallStolen(player);
-        }
-    }
-
-    private void IncrementStealAttempts()
-    {
-        if (stealAttempts == 0) StartCoroutine(ClearStealAttempts());
-        stealAttempts++;
-    }
-
-    private IEnumerator ClearStealAttempts()
-    {
-        yield return new WaitForSeconds(player.Attributes.GetStealAttemptWindow());
-        stealAttempts = 0;
-    }
-
-    private bool CheckForStealFoul()
-    {
-        if (stealAttempts > player.Attributes.GetStealAttemptLimit())
-        {
-            //If the probability results in a foul, return true
-            if (Random.value <= player.Attributes.GetStealFoulProbability())
-            {
-                Debug.Log("Player Fouled");
-                return true;
-            }
-        }
-
-        return false;
-    }
-    #endregion
 
     private void PossessionChangeEvent(PlayerScript newBallHandler)
     {
@@ -138,9 +93,11 @@ public class ActionsScript : MonoBehaviour
 
     public JumpAction GetJumpAction() { return jumpAction; }
 
-    public IAction GetSprintAction() { return sprintAction; }
+    public SprintAction GetSprintAction() { return sprintAction; }
 
-    public IAction GetShootAction() { return shootAction;  }
+    public ShootAction GetShootAction() { return shootAction;  }
 
-    public IAction GetDunkAction() { return dunkAction; }
+    public DunkAction GetDunkAction() { return dunkAction; }
+
+    public StealAction GetSwipeAction() { return swipeAction; }
 }

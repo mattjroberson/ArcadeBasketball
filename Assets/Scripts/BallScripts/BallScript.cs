@@ -43,10 +43,10 @@ public class BallScript : MonoBehaviour
 
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
 
-        BallEvents.events.onBallShot += ShootEvent;
-        BallEvents.events.onBallPassed += PassEvent;
-        BallEvents.events.onBallTouched += BallTouchedEvent;
-        BallEvents.events.onBallStolen += StealEvent;
+        BallEvents.Instance.onBallShot += ShootEvent;
+        BallEvents.Instance.onBallPassed += PassEvent;
+        BallEvents.Instance.onBallTouched += BallTouchedEvent;
+        BallEvents.Instance.onBallStolen += StealEvent;
     }
 
     private void FixedUpdate()
@@ -96,7 +96,7 @@ public class BallScript : MonoBehaviour
                 break;
         }
     }
-    
+
     private void ShootEvent(GoalScript goal, bool madeShot)
     {
         shooting.StartShot(currentHandler, goal, madeShot);
@@ -107,7 +107,7 @@ public class BallScript : MonoBehaviour
 
     private void OnPassReceived(PlayerScript player)
     {
-        GameEvents.events.PassReceived(player);
+        GameEvents.Instance.PassReceived(player);
         ChangePossession(player);
     }
 
@@ -118,11 +118,12 @@ public class BallScript : MonoBehaviour
 
     public void OnShotBlocked()
     {
-        looseBall.BounceOffBlock(shooting.TargetGoal, currentHandler.FrontPoint.FloorPosition);
-        StartCoroutine(BlockedShotCooldown());
-        state = BallState.LOOSE;
+        Vector2 shooterFootPos = currentHandler.FrontPoint.FloorPosition;
 
-        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
+        looseBall.BounceOffBlock(shooting.TargetGoal, shooterFootPos);
+        StartCoroutine(BlockedShotCooldown());
+
+        HandleLooseBall();
     }
 
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
@@ -138,7 +139,7 @@ public class BallScript : MonoBehaviour
         state = BallState.PASSING;
 
         transform.SetParent(looseBallContainer);
-        GameEvents.events.PassSent(target);
+        GameEvents.Instance.PassSent(target);
     }
 
     private IEnumerator BlockedShotCooldown()
@@ -150,8 +151,7 @@ public class BallScript : MonoBehaviour
 
     public void FinishShot()
     {
-        state = BallState.LOOSE;
-        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
+        HandleLooseBall();
     }
 
     public void CompleteBouncing()
@@ -164,9 +164,9 @@ public class BallScript : MonoBehaviour
         looseBall.BounceOffGoal(targetGoal, shooterPos, shotSpeed);
     }
 
-    public void DropFromGoal(GoalScript targetGoal) 
-    { 
-        looseBall.DropFromGoal(targetGoal); 
+    public void DropFromGoal(GoalScript targetGoal)
+    {
+        looseBall.DropFromGoal(targetGoal);
     }
 
     public PlayerScript GetBallHandler() { return currentHandler; }
@@ -179,6 +179,13 @@ public class BallScript : MonoBehaviour
         transform.SetParent(currentHandler.Hands);
         transform.position = currentHandler.Hands.position;
 
-        GameEvents.events.PossessionChange(newBallHandler);
+        GameEvents.Instance.PossessionChange(newBallHandler);
+    }
+
+    private void HandleLooseBall()
+    {
+        GameEvents.Instance.BallLoose(looseBall.BallFloor);
+        state = BallState.LOOSE;
+        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
     }
 }

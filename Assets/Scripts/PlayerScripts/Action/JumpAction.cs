@@ -1,5 +1,7 @@
 ﻿
-public class JumpAction
+using System;
+
+public class JumpAction : ILongAction
 {
     private readonly ActionsScript actions;
     private bool isJumping;
@@ -8,6 +10,11 @@ public class JumpAction
     {
         this.actions = actions;
         isJumping = false;
+    }
+
+    public void Start()
+    {
+        throw new NotImplementedException();
     }
 
     public void Start(float scalar)

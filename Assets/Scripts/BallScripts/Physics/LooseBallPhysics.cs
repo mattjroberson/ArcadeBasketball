@@ -3,6 +3,7 @@
 public class LooseBallPhysics : BallPhysicsType
 {
     private Vector2 ballFloor;
+    public Vector2 BallFloor => ballFloor;
 
     public LooseBallPhysics(BallScript ball) : base(ball) {}
 

@@ -34,7 +34,7 @@ public class IntelligenceContainer : MonoBehaviour
 
         SetIntelligenceType(intelType);
 
-        GameEvents.events.onPossessionChange += PossessionChangeEvent;
+        GameEvents.Instance.onPossessionChange += PossessionChangeEvent;
     }
 
     public void Update()
