@@ -1,21 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SideManager : MonoBehaviour
 {
-    private GoalScript goalScript;
-    private Transform shotZones;
+    [SerializeField] private TargetScript dunkTarget;
+    public TargetScript DunkTarget => dunkTarget;
 
-    // Start is called before the first frame update
-    void Awake()
-    {
-        goalScript = GetComponentInChildren<GoalScript>();
-        shotZones = transform.Find("ShotZones");
-    }
+    [SerializeField] private TargetScript driveTarget;
+    public TargetScript DriveTarget => driveTarget;
 
-    public GoalScript getGoalScript() { return goalScript; }
-
-    public Transform getShotZones() { return shotZones; }
-
+    [SerializeField] private GoalScript goalScript;
+    public GoalScript Goal => goalScript;
 }

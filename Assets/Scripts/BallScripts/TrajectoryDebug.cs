@@ -40,8 +40,7 @@ public class TrajectoryDebug : MonoBehaviour
         pointPrefab = Resources.Load("Prefabs/Point") as GameObject;
 
         gameLogic = GameObject.Find("GameLogic").GetComponent<GameLogicScript>();
-        basketball = gameLogic.GetBasketball();
-
+        //basketball = gameLogic.GetBasketball();
     }
 
     // Update is called once per frame

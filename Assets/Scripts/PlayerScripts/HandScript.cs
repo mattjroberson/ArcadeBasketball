@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HandScript : MonoBehaviour
 {
@@ -31,6 +29,6 @@ public class HandScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        actions.TouchBall();
+        actions.HandTouchBall();
     }
 }

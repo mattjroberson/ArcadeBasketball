@@ -17,6 +17,12 @@ public class BallEvents
         onBallShot?.Invoke(goal, madeShot);
     }
 
+    public event Action<GoalScript, bool> onDunkAttempt;
+    public void DunkAttempt(GoalScript goal, bool madeDunk)
+    {
+        onDunkAttempt?.Invoke(goal, madeDunk);
+    }
+
     public event Action<PlayerScript> onBallPassed;
     public void BallPassed(PlayerScript target)
     {
@@ -29,9 +35,15 @@ public class BallEvents
         onBallStolen?.Invoke(defender);
     }
 
-    public event Action<PlayerScript> onBallTouched;
-    public void BallTouched(PlayerScript player)
+    public event Action<PlayerScript> onBallTouchedHand;
+    public void BallTouchedHand(PlayerScript player)
     {
-        onBallTouched?.Invoke(player);
+        onBallTouchedHand?.Invoke(player);
+    }
+
+    public event Action<PlayerScript> onBallTouchedFoot;
+    public void BallTouchedFoot(PlayerScript player)
+    {
+        onBallTouchedFoot?.Invoke(player);
     }
 }

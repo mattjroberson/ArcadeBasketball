@@ -12,6 +12,7 @@ public class BallScript : MonoBehaviour
     public BallPhysicsAttributesSO Fields => fields;
 
     [SerializeField] private float BLOCK_COOLDOWN = 2;
+    [SerializeField] private float DUNK_SPEED = 2.5f;
 
     private PassingPhysics passing;
     private ShootingPhysics shooting;
@@ -44,8 +45,10 @@ public class BallScript : MonoBehaviour
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
 
         BallEvents.Instance.onBallShot += ShootEvent;
+        BallEvents.Instance.onDunkAttempt += DunkEvent;
         BallEvents.Instance.onBallPassed += PassEvent;
-        BallEvents.Instance.onBallTouched += BallTouchedEvent;
+        BallEvents.Instance.onBallTouchedHand += BallTouchedHandEvent;
+        BallEvents.Instance.onBallTouchedFoot += BallTouchedFootEvent;
         BallEvents.Instance.onBallStolen += StealEvent;
     }
 
@@ -75,7 +78,7 @@ public class BallScript : MonoBehaviour
         ChangePossession(defender);
     }
 
-    private void BallTouchedEvent(PlayerScript player)
+    private void BallTouchedHandEvent(PlayerScript player)
     {
         if (ignoringBall) return;
 
@@ -87,14 +90,17 @@ public class BallScript : MonoBehaviour
             case BallState.LOOSE:
                 looseBall.CheckForRebound(player);
                 break;
-            case BallState.ON_GROUND:
-                OnBallPickup(player);
-                break;
             case BallState.SHOOTING:
                 if (player == currentHandler) return;
                 shooting.CheckForBlock(currentHandler, player);
                 break;
         }
+    }
+
+    private void BallTouchedFootEvent(PlayerScript player)
+    {
+        if (ignoringBall) return;
+        if(State == BallState.ON_GROUND) OnBallPickup(player);
     }
 
     private void ShootEvent(GoalScript goal, bool madeShot)
@@ -103,6 +109,15 @@ public class BallScript : MonoBehaviour
         state = BallState.SHOOTING;
 
         transform.SetParent(looseBallContainer);
+    }
+
+    private void DunkEvent(GoalScript goal, bool madeShot)
+    {
+        if (madeShot) DropFromGoal(goal);
+        else BounceOffGoal(goal, currentHandler.FrontPoint.FloorPosition, DUNK_SPEED);
+
+        transform.SetParent(looseBallContainer);
+        HandleLooseBall();
     }
 
     private void OnPassReceived(PlayerScript player)

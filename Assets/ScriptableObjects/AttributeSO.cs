@@ -29,8 +29,6 @@ public class AttributeSO : ScriptableObject
 
     public void InitializeAttributes()
     {
-
-        //TODO Make this stuff more transparent / less hard coded
         //Make sure the attributes are in a valid range
         speedAttr = Mathf.Clamp(speedAttr, 0, 25);
         jumpAttr = Mathf.Clamp(jumpAttr, 0, 25);

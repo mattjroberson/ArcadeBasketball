@@ -4,15 +4,19 @@ using UnityEngine;
 
 public class GameLogicScript : MonoBehaviour
 {
-    private BallScript basketball;
-
     private float targetPlaybackSpeed;
     private float slomoLerpValue;
     private float slomoLerpSpeed;
     private bool lerpingPlayback;
 
+    public static GameLogicScript Instance;
+
+    [SerializeField] private float SHOT_SLOMO = .1f;
+
     public void Awake()
     {
+        Instance = this;
+
         //Set up some display variables
         Application.targetFrameRate = 30;
         QualitySettings.vSyncCount = 0;
@@ -23,7 +27,6 @@ public class GameLogicScript : MonoBehaviour
 
     public void Start()
     {
-        basketball = GameObject.Find("Basketball").GetComponent<BallScript>();
     }
 
     public void Update()
@@ -35,23 +38,22 @@ public class GameLogicScript : MonoBehaviour
 
             //Stop lerping when completely lerped
             if (newTime == targetPlaybackSpeed) {
-                Debug.Log("on");
                 lerpingPlayback = false;
             }
         }
     }
 
-    public void SetPlaybackSpeed(float speed, bool lerp)
+    public void SetPlaybackSpeedOnShot()
     {
-        if (lerp == true) {
-            slomoLerpValue = 0f;
-            targetPlaybackSpeed = speed;
-        }
-        else {
-            SetPlaybackSpeed(speed);
-        }
+        slomoLerpValue = 0f;
+        targetPlaybackSpeed = SHOT_SLOMO;
+        lerpingPlayback = true;
+    }
 
-        lerpingPlayback = lerp;
+    public void ClearPlaybackSpeed()
+    {
+        lerpingPlayback = false;
+        SetPlaybackSpeed(1);
     }
 
     private void SetPlaybackSpeed(float speed) {
@@ -69,6 +71,4 @@ public class GameLogicScript : MonoBehaviour
         if (chance <= shotPercentage) return true;
         else return false;
     }
-
-    public BallScript GetBasketball() { return basketball; }
 }

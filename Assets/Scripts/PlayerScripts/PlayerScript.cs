@@ -23,14 +23,17 @@ public class PlayerScript : MonoBehaviour, ISortableSprite
     private SpriteRenderer spriteRenderer;
     public SpriteRenderer SpriteRenderer => spriteRenderer;
 
-    public GoalScript CurrentGoal => Team.getCurrentSide().getGoalScript();
+    private PlayerStateScript playerStates;
+    public PlayerStateScript States => playerStates;
+
     public float SortPosition => FrontPoint.FloorPosition.y;
 
     public void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        teamScript = transform.GetComponentInParent<TeamScript>();
+        teamScript = GetComponentInParent<TeamScript>();
+        playerStates = GetComponent<PlayerStateScript>();
 
         hands = GetComponentInChildren<HandScript>();
         frontPoint = GetComponentInChildren<FrontPointScript>();

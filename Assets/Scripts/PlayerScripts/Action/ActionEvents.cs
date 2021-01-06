@@ -9,6 +9,12 @@ public class ActionEvents
         onJumpBegin?.Invoke(scalar);
     }
 
+    public event Action onJumpStop;
+    public void JumpStop()
+    {
+        onJumpStop?.Invoke();
+    }
+
     public event Action onJumpEnd;
     public void JumpEnd()
     {
@@ -37,12 +43,6 @@ public class ActionEvents
     public void DunkEnd()
     {
         onDunkEnd?.Invoke();
-    }
-
-    public event Action onShotInit;
-    public void ShotInit()
-    {
-        onShotInit?.Invoke();
     }
 
     public event Action onShootBegin;

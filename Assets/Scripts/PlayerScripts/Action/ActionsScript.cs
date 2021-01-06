@@ -22,7 +22,7 @@ public class ActionsScript : MonoBehaviour
         player = GetComponent<PlayerScript>();
         playerStates = GetComponent<PlayerStateScript>();
 
-        jumpAction = new JumpAction(this);
+        jumpAction = new JumpAction(this, playerStates);
         sprintAction = new SprintAction(this);
         shootAction = new ShootAction(this);
         dunkAction = new DunkAction(this);
@@ -38,19 +38,27 @@ public class ActionsScript : MonoBehaviour
 
     public void InitializeShot()
     {
-        events.ShotInit();
-
         if (playerStates.InDunkRange) dunkAction.Start();
         else shootAction.Start();
     }
 
-    public void CompleteShotProcess()
+    public void CompleteJumpShotProcess()
+    {
+        bool madeShot = CompleteShotProcess();
+        BallEvents.Instance.BallShot(player.Team.Goal, madeShot);
+    }
+
+    public void CompleteDunkShotProcess()
+    {
+        bool madeShot = CompleteShotProcess();
+        BallEvents.Instance.DunkAttempt(player.Team.Goal, madeShot);
+    }
+
+    private bool CompleteShotProcess()
     {
         float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
-        bool madeShot = GameLogicScript.CalculateIfMadeShot(probability);
-        BallEvents.Instance.BallShot(player.CurrentGoal, madeShot);
-
         playerStates.HasBall = false;
+        return GameLogicScript.CalculateIfMadeShot(probability);
     }
 
     public void StartPassing()
@@ -61,15 +69,26 @@ public class ActionsScript : MonoBehaviour
         BallEvents.Instance.BallPassed(target);
     }
 
-    public void TouchBall()
+    public void HandTouchBall()
     {
         if (playerStates.HasBall) return;
-        BallEvents.Instance.BallTouched(player);
+        BallEvents.Instance.BallTouchedHand(player);
+    }
+
+    public void FootTouchBall()
+    {
+        if (playerStates.HasBall) return;
+        BallEvents.Instance.BallTouchedFoot(player);
     }
 
     public void ReachForSteal()
     {
         events.SwipeBegin();
+    }
+
+    public void SwitchPlayer()
+    {
+        GameEvents.Instance.UserPlayerSwitch(player);
     }
 
     private void PossessionChangeEvent(PlayerScript newBallHandler)

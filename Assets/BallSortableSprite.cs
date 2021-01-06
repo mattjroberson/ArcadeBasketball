@@ -29,12 +29,13 @@ public class BallSortableSprite : MonoBehaviour, ISortableSprite
 
     private void PassSentEvent(PlayerScript player)
     {
-        passFloorDisplacement = transform.position.y -  ball.GetBallHandler().FrontPoint.FloorPosition.y;
         SpriteRenderer.enabled = true;
+        passFloorDisplacement = transform.position.y -  ball.GetBallHandler().FrontPoint.FloorPosition.y;
         CurrentPosition = Passing;
     }
     private void BallLooseEvent(Vector2 landingPos)
     {
+        SpriteRenderer.enabled = true;
         looseBallFloor = landingPos.y;
         CurrentPosition = LooseBall;
     }

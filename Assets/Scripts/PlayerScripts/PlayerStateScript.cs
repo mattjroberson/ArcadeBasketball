@@ -34,5 +34,5 @@ public class PlayerStateScript : MonoBehaviour
     }
 
     private bool MovingDunkCheck =>
-        (player.CurrentGoal.isRightGoal) ? (CurrentMoveDirection.x > 0) : (CurrentMoveDirection.x < 0);
+        (player.Team.Goal.isRightGoal) ? (CurrentMoveDirection.x > 0) : (CurrentMoveDirection.x < 0);
 }

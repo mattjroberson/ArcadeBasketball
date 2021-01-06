@@ -19,23 +19,24 @@ public class ShootAction : ILongAction
         isShooting = true;
         playerWalked = false;
 
-        actions.GetJumpAction().Start(.5f);
+        actions.GetJumpAction().Start(1f);
         actions.events.ShootBegin();
+        GameLogicScript.Instance.SetPlaybackSpeedOnShot();
     }
 
     public void Stop()
     {
-        if(isShooting == true)
+        if (isShooting == false) return;
+
+        isShooting = false;
+        actions.events.ShootEnd();
+
+        if(playerWalked == false)
         {
-            isShooting = false;
-            actions.events.ShootEnd();
-
-            if(playerWalked == false)
-            {
-                actions.CompleteShotProcess();
-            }
-
+            actions.CompleteJumpShotProcess();
         }
+        
+        GameLogicScript.Instance.ClearPlaybackSpeed();
     }
 
     public bool IsActive()
@@ -49,8 +50,4 @@ public class ShootAction : ILongAction
         playerWalked = true;
         Stop();
     }
-
-    //TODO Reimplement
-    //gameLogic.SetPlaybackSpeed(.3f, true);
-
 }

@@ -47,7 +47,7 @@ public class UserIntelligence : IntelligenceScript
             }
             else
             {
-                Debug.Log("test");
+                actions.SwitchPlayer();
             }
         }
     }
@@ -69,8 +69,7 @@ public class UserIntelligence : IntelligenceScript
         }
         else {
             if (isStart == true) actions.GetJumpAction().Start(1);
-            //TODO implement jump exit, right now floaty bug happens
-            //else actions.GetJumpAction().Stop();
+            else actions.GetJumpAction().Stop();
         }
     }
 }

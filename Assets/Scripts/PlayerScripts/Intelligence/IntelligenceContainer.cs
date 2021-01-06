@@ -35,6 +35,7 @@ public class IntelligenceContainer : MonoBehaviour
         SetIntelligenceType(intelType);
 
         GameEvents.Instance.onPossessionChange += PossessionChangeEvent;
+        GameEvents.Instance.onUserPlayerSwitch += UserPlayerSwitchEvent;
     }
 
     public void Update()
@@ -72,8 +73,14 @@ public class IntelligenceContainer : MonoBehaviour
     {
         if (player.Team.UserControlled)
         {
-            if (newBallHandler == player) SetIntelligenceType(IntelligenceType.USER);
-            else if (newBallHandler == player.Teammate) SetIntelligenceType(IntelligenceType.OFFBALL_OFF);
+            if (newBallHandler == player)
+            {
+                SetIntelligenceType(IntelligenceType.USER);
+            }
+            else if (newBallHandler == player.Teammate)
+            {
+                SetIntelligenceType(IntelligenceType.OFFBALL_OFF);
+            }
             else if (newBallHandler == player.Defender)
             {
                 if (intelType != IntelligenceType.USER) SetIntelligenceType(IntelligenceType.ONBALL_DEF);
@@ -89,6 +96,22 @@ public class IntelligenceContainer : MonoBehaviour
             else if (newBallHandler == player.Teammate) SetIntelligenceType(IntelligenceType.OFFBALL_OFF);
             else if (newBallHandler == player.Defender) SetIntelligenceType(IntelligenceType.ONBALL_DEF);
             else SetIntelligenceType(IntelligenceType.OFFBALL_DEF);
+        }
+    }
+
+    private void UserPlayerSwitchEvent(PlayerScript oldUser)
+    {
+        if (oldUser == player)
+        {
+            IntelligenceType type = (intelType != IntelligenceType.ONBALL_DEF) ?
+                IntelligenceType.ONBALL_DEF :
+                IntelligenceType.ONBALL_OFF;
+
+            SetIntelligenceType(type);
+        }
+        else if (oldUser == player.Teammate)
+        {
+            SetIntelligenceType(IntelligenceType.USER);
         }
     }
 }

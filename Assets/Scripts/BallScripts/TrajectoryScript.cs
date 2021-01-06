@@ -1,21 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
 
 public class TrajectoryScript
 {
-    //Math credit to: https://www.desmos.com/calculator/lac2i0bgum
     public static float[] CalculateTrajectory(Vector2 point1, Vector2 point3, float angle, float arcPeakXPercent)
     {
-        //Set variables needed for calculating shot speed
-        float shotDistFromCenter = point3.y - point1.y;
+        //Math credit to: https://www.desmos.com/calculator/lac2i0bgum
+
         bool shotRightOfGoal = (point3.x < point1.x) ? true : false;
 
-        //Vector2 point1 = transform.position;
-        //Vector2 point3 = physics.GetTarget();
-
-        //This is my logic
         float distToGoal = Mathf.Abs(point3.x - point1.x);
         if (shotRightOfGoal == true) distToGoal *= -1;
 
@@ -41,5 +33,14 @@ public class TrajectoryScript
         float shotC = point1.y - (shotA * (point1.x * point1.x)) - (shotB * point1.x);
 
         return new float[] { shotA, shotB, shotC };
+    }
+
+    public static float[] CalculateStraightTrajectory(Vector2 point1, Vector2 point2)
+    {
+        float slope = (point1.y - point2.y) / (point1.x - point2.x);
+        float mx = slope * point1.x;
+        float b = point1.y - mx;
+
+        return new float[] { 0, slope, b };
     }
 }

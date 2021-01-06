@@ -18,6 +18,7 @@
     public void Stop()
     {
         isDunking = false;
+        actions.CompleteDunkShotProcess();
         actions.events.DunkEnd();
     }
     public bool IsActive()

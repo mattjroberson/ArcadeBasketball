@@ -66,7 +66,7 @@ public class DetectionPhysics : MonoBehaviour
 
     private Vector2 GetDirectionToGoal(Vector2 raySource)
     {
-        return (player.CurrentGoal.baseOfGoal.position - (Vector3)raySource).normalized;
+        return (player.Team.Goal.baseOfGoal.position - (Vector3)raySource).normalized;
     }
 
     //Creates a raycast, returns first valid player
@@ -108,12 +108,6 @@ public class DetectionPhysics : MonoBehaviour
         }
 
         return null;
-    }
-
-    //TODO Make this more precise. Currently triggers for hands and feet
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.tag == "basketball") actions.TouchBall();
     }
 
     class RaycastProperties

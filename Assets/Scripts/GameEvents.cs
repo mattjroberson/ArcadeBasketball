@@ -17,6 +17,12 @@ public sealed class GameEvents
         onPossessionChange?.Invoke(newBallHandler);
     }
 
+    public event Action<PlayerScript> onUserPlayerSwitch;
+    public void UserPlayerSwitch(PlayerScript oldUser)
+    {
+        onUserPlayerSwitch?.Invoke(oldUser);
+    }
+
     public event Action<PlayerScript> onPassSent;
     public void PassSent(PlayerScript receiver)
     {
