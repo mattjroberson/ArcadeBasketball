@@ -66,7 +66,7 @@ public class DetectionPhysics : MonoBehaviour
 
     private Vector2 GetDirectionToGoal(Vector2 raySource)
     {
-        return (player.Team.Goal.baseOfGoal.position - (Vector3)raySource).normalized;
+        return (player.Team.Side.Goal.baseOfGoal.position - (Vector3)raySource).normalized;
     }
 
     //Creates a raycast, returns first valid player

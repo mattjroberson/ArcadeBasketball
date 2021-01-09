@@ -7,9 +7,6 @@ public class IntelligenceContainer : MonoBehaviour
 
     private ActionsScript actions;
     public ActionsScript Actions => actions;
-   
-    private PlayerStateScript playerStates;
-    public PlayerStateScript PlayerStates => playerStates;
 
     private PlayerScript player;
 
@@ -24,13 +21,12 @@ public class IntelligenceContainer : MonoBehaviour
     {
         player = GetComponentInParent<PlayerScript>();
         actions = GetComponentInParent<ActionsScript>();
-        playerStates = GetComponentInParent<PlayerStateScript>();
 
-        userIntel = new UserIntelligence(this);
-        offBallOffIntel = new OffBallOffenseIntelligence(this);
-        onBallOffIntel = new OnBallOffenseIntelligence(this);
-        offBallDefIntel = new OffBallDefenseIntelligence(this);
-        onBallDefIntel = new OnBallDefenseIntelligence(this);
+        userIntel = new UserIntelligence(player, actions);
+        offBallOffIntel = new OffBallOffenseIntelligence(player, actions);
+        onBallOffIntel = new OnBallOffenseIntelligence(player, actions);
+        offBallDefIntel = new OffBallDefenseIntelligence(player, actions);
+        onBallDefIntel = new OnBallDefenseIntelligence(player, actions);
 
         SetIntelligenceType(intelType);
 
@@ -67,6 +63,8 @@ public class IntelligenceContainer : MonoBehaviour
                 Debug.LogWarning("Intelligence Type Not Found");
                 break;
         }
+
+        current.Wake();
     }
 
     private void PossessionChangeEvent(PlayerScript newBallHandler)

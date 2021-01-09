@@ -1,9 +1,11 @@
-Shooting Bug: Shot Meter needs to be tied to the players jump modifier
+Features To Implement: Dunk Slomo, Dunk Blocking
 
-Examine References and Dependencies across Player (out of date)
-	Reconsider how FrontPoint is referenced across scripts
-	Reconsider how PlayerStates is referenced across scripts
+Make sure abstract inheritance types are uniformly designed. Actions, Intelligence, Movements, BallPhysics
 
-Clean up Attribute Script
+Look into refactoring jump scalar
 
 
+Notes for tomorrow: Think about passing player ref through events to check for equality
+		    Maybe need to restructure intels so event are getting called unnecessarily.
+		    Make the left side into a prefab of the right
+		    Past Me thinks we did fantastic tonight

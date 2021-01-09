@@ -20,7 +20,7 @@ public class StealAction : IAction
         if (CheckForStealFoul() == true) return;
 
         //If probability calculated for a steal, steal ball
-        if (Random.value <= player.Attributes.GetStealProbability())
+        if (Random.value <= player.Attributes.StealProb.Value)
         {
             BallEvents.Instance.BallStolen(player);
         }
@@ -34,16 +34,16 @@ public class StealAction : IAction
 
     private IEnumerator ClearStealAttempts()
     {
-        yield return new WaitForSeconds(player.Attributes.GetStealAttemptWindow());
+        yield return new WaitForSeconds(player.Attributes.StealAttemptWindow.Value);
         stealAttempts = 0;
     }
 
     private bool CheckForStealFoul()
     {
-        if (stealAttempts > player.Attributes.GetStealAttemptLimit())
+        if (stealAttempts > player.Attributes.StealAttemptLimit.Value)
         {
             //If the probability results in a foul, return true
-            if (Random.value <= player.Attributes.GetStealFoulProbability())
+            if (Random.value <= player.Attributes.StealFoulProb.Value)
             {
                 Debug.Log("Player Fouled");
                 return true;

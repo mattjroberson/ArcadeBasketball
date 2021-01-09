@@ -89,7 +89,7 @@ public class MovePhysics : MonoBehaviour
 
     private void ShootBeginEvent()
     {
-        FaceTarget(player.Team.Goal.basketCenter);
+        FaceTarget(player.Team.Side.Goal.basketCenter);
     }
 
     private void PassBeginEvent(Transform target)

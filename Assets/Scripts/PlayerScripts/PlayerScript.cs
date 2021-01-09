@@ -1,44 +1,46 @@
 ﻿using UnityEngine;
 
 public class PlayerScript : MonoBehaviour, ISortableSprite
-{
-    [SerializeField] private AttributeSO attributes;
-    public AttributeSO Attributes => attributes;
-    
+{   
     [SerializeField] private PlayerScript teammate;
     public PlayerScript Teammate => teammate;
 
     [SerializeField] private PlayerScript defender;
     public PlayerScript Defender => defender;
 
-    private TeamScript teamScript;
-    public TeamScript Team => teamScript;
+    [SerializeField] private AttributeSO attributes;
+    public AttributeSO Attributes => attributes;
 
-    private HandScript hands;
-    public Transform Hands => hands.transform;
+    private PlayerStates playerStates;
+    public PlayerStates States => playerStates;
 
     private FrontPointScript frontPoint;
     public FrontPointScript FrontPoint => frontPoint;
 
+    private TeamScript teamScript;
+    public TeamScript Team => teamScript;
+
+    private Transform hands;
+    public Transform Hands => hands.transform;
+
     private SpriteRenderer spriteRenderer;
     public SpriteRenderer SpriteRenderer => spriteRenderer;
 
-    private PlayerStateScript playerStates;
-    public PlayerStateScript States => playerStates;
-
     public float SortPosition => FrontPoint.FloorPosition.y;
+
+    public void Awake()
+    {
+        playerStates = new PlayerStates(this);
+        teamScript = GetComponentInParent<TeamScript>();
+        attributes.Init();
+    }
 
     public void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        teamScript = GetComponentInParent<TeamScript>();
-        playerStates = GetComponent<PlayerStateScript>();
-
-        hands = GetComponentInChildren<HandScript>();
+        hands = GetComponentInChildren<HandScript>().transform;
         frontPoint = GetComponentInChildren<FrontPointScript>();
-
-        attributes.InitializeAttributes();
     }
 
 }

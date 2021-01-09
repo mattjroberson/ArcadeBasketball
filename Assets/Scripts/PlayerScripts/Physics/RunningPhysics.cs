@@ -2,19 +2,17 @@
 
 public class RunningPhysics : PlayerPhysicsType
 {
-    private float currentSpeed;
+    bool sprinting = false;
 
     public RunningPhysics(MovePhysics physics, PlayerScript player, ActionsScript actions) : base(physics, player, actions)
     {
-        currentSpeed = player.Attributes.GetMaxSpeed();
-
         actions.events.onSprintBegin += Begin;
         actions.events.onSprintEnd += End;
     }
 
     public override void Begin()
     {
-        currentSpeed *= player.Attributes.GetSprintBonus();
+        sprinting = true;
     }
 
     public override void Update()
@@ -26,7 +24,9 @@ public class RunningPhysics : PlayerPhysicsType
         Vector2 inputVector = player.States.CurrentMoveDirection;
         inputVector = Vector2.ClampMagnitude(inputVector, 1);
 
-        Vector2 movement = inputVector * currentSpeed;
+        float speed = CalculateSpeed();
+
+        Vector2 movement = inputVector * speed;
         Vector2 newPos = currentPos + movement * Time.fixedDeltaTime;
 
         physics.HandleOrientation(movement.x);
@@ -35,6 +35,14 @@ public class RunningPhysics : PlayerPhysicsType
 
     public override void End()
     {
-        currentSpeed = player.Attributes.GetMaxSpeed();
+        sprinting = false;
+    }
+
+    private float CalculateSpeed()
+    {
+        float speed = player.Attributes.MaxSpeed.Value;
+        if (sprinting) speed *= player.Attributes.MaxSpeed.Value;
+
+        return speed;
     }
 }

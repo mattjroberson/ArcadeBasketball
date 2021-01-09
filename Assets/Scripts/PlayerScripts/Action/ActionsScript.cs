@@ -3,7 +3,6 @@
 public class ActionsScript : MonoBehaviour
 {
     private PlayerScript player;
-    private PlayerStateScript playerStates;
     public ActionEvents events;
 
     private JumpAction jumpAction;
@@ -20,11 +19,10 @@ public class ActionsScript : MonoBehaviour
     public void Start()
     {
         player = GetComponent<PlayerScript>();
-        playerStates = GetComponent<PlayerStateScript>();
 
-        jumpAction = new JumpAction(this, playerStates);
+        jumpAction = new JumpAction(this, player.States);
         sprintAction = new SprintAction(this);
-        shootAction = new ShootAction(this);
+        shootAction = new ShootAction(this, player);
         dunkAction = new DunkAction(this);
         swipeAction = new StealAction(player);
 
@@ -38,26 +36,26 @@ public class ActionsScript : MonoBehaviour
 
     public void InitializeShot()
     {
-        if (playerStates.InDunkRange) dunkAction.Start();
+        if (player.States.InDunkRange) dunkAction.Start();
         else shootAction.Start();
     }
 
     public void CompleteJumpShotProcess()
     {
         bool madeShot = CompleteShotProcess();
-        BallEvents.Instance.BallShot(player.Team.Goal, madeShot);
+        BallEvents.Instance.BallShot(player.Team.Side.Goal, madeShot);
     }
 
     public void CompleteDunkShotProcess()
     {
         bool madeShot = CompleteShotProcess();
-        BallEvents.Instance.DunkAttempt(player.Team.Goal, madeShot);
+        BallEvents.Instance.DunkAttempt(player.Team.Side.Goal, madeShot);
     }
 
     private bool CompleteShotProcess()
     {
-        float probability = player.Attributes.GetShotPercentage(playerStates.ShotZoneName);
-        playerStates.HasBall = false;
+        float probability = player.Attributes.GetShotPercentage(player.States.ShotZoneName);
+        player.States.HasBall = false;
         return GameLogicScript.CalculateIfMadeShot(probability);
     }
 
@@ -71,13 +69,13 @@ public class ActionsScript : MonoBehaviour
 
     public void HandTouchBall()
     {
-        if (playerStates.HasBall) return;
+        if (player.States.HasBall) return;
         BallEvents.Instance.BallTouchedHand(player);
     }
 
     public void FootTouchBall()
     {
-        if (playerStates.HasBall) return;
+        if (player.States.HasBall) return;
         BallEvents.Instance.BallTouchedFoot(player);
     }
 
@@ -93,17 +91,17 @@ public class ActionsScript : MonoBehaviour
 
     private void PossessionChangeEvent(PlayerScript newBallHandler)
     {
-        playerStates.HasBall = (newBallHandler == player);
+        player.States.HasBall = (newBallHandler == player);
     }
 
     private void PassSentEvent(PlayerScript receiver)
     {
-        if (player == receiver) playerStates.WaitingOnPass = true;
+        if (player == receiver) player.States.WaitingOnPass = true;
     }
 
     private void PassReceivedEvent(PlayerScript receiver)
     {
-        if (playerStates.WaitingOnPass) playerStates.WaitingOnPass = false;
+        if (player.States.WaitingOnPass) player.States.WaitingOnPass = false;
     }
 
     public void EnduranceDepleted() { events.EnduranceDepleted(); }

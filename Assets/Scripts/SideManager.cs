@@ -10,4 +10,7 @@ public class SideManager : MonoBehaviour
 
     [SerializeField] private GoalScript goalScript;
     public GoalScript Goal => goalScript;
+
+    [SerializeField] private OffenseTargetPoints offenseTargetPoints;
+    public OffenseTargetPoints OffTargetPoints => offenseTargetPoints;
 }

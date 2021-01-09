@@ -4,10 +4,10 @@ using System;
 public class JumpAction : ILongAction
 {
     private readonly ActionsScript actions;
-    private readonly PlayerStateScript states;
+    private readonly PlayerStates states;
     private bool isJumping;
 
-    public JumpAction(ActionsScript actions, PlayerStateScript states)
+    public JumpAction(ActionsScript actions, PlayerStates states)
     {
         this.actions = actions;
         this.states = states;

@@ -9,9 +9,9 @@ public class GameLogicScript : MonoBehaviour
     private float slomoLerpSpeed;
     private bool lerpingPlayback;
 
-    public static GameLogicScript Instance;
+    private const float TIME_TO_LERP_PERCENT = .10f;
 
-    [SerializeField] private float SHOT_SLOMO = .1f;
+    public static GameLogicScript Instance;
 
     public void Awake()
     {
@@ -22,7 +22,6 @@ public class GameLogicScript : MonoBehaviour
         QualitySettings.vSyncCount = 0;
 
         lerpingPlayback = false;
-        slomoLerpSpeed = .3f;
     }
 
     public void Start()
@@ -32,7 +31,7 @@ public class GameLogicScript : MonoBehaviour
     public void Update()
     { 
         if (lerpingPlayback) {
-            float newTime = Mathf.Lerp(Time.timeScale, targetPlaybackSpeed, slomoLerpValue);
+            float newTime = Mathf.Lerp(1, targetPlaybackSpeed, slomoLerpValue);
             slomoLerpValue += slomoLerpSpeed * Time.unscaledDeltaTime;
             SetPlaybackSpeed(newTime);
 
@@ -43,10 +42,11 @@ public class GameLogicScript : MonoBehaviour
         }
     }
 
-    public void SetPlaybackSpeedOnShot()
+    public void SetPlaybackSpeedOnShot(float jumpTime, float meterTime)
     {
         slomoLerpValue = 0f;
-        targetPlaybackSpeed = SHOT_SLOMO;
+        targetPlaybackSpeed = jumpTime / meterTime;
+        slomoLerpSpeed = 1 / (jumpTime * TIME_TO_LERP_PERCENT);
         lerpingPlayback = true;
     }
 

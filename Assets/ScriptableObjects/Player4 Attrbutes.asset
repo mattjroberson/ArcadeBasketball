@@ -12,7 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89dc9c34b696087488fc6e4328eb6038, type: 3}
   m_Name: Player4 Attrbutes
   m_EditorClassIdentifier: 
-  speedAttr: 5
-  jumpAttr: 5
-  endurAttr: 5
-  defenseAttr: 5
+  speedAttr:
+    value: 5
+  shotAttr:
+    value: 5
+  jumpAttr:
+    value: 5
+  endurAttr:
+    value: 5
+  defenseAttr:
+    value: 5

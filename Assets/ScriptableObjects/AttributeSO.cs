@@ -1,98 +1,64 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu (fileName ="New Attributes", menuName ="Attributes")]
 public class AttributeSO : ScriptableObject
 {
     //Attributes
-    [SerializeField] private int speedAttr = 5;
-    [SerializeField] private int jumpAttr = 5;
-    [SerializeField] private int endurAttr = 5;
-    [SerializeField] private int defenseAttr = 5;
+    [SerializeField] private Attribute speedAttr = new Attribute();
+    [SerializeField] private Attribute shotAttr = new Attribute();
+    [SerializeField] private Attribute jumpAttr = new Attribute();
+    [SerializeField] private Attribute endurAttr = new Attribute();
+    [SerializeField] private Attribute defenseAttr = new Attribute();
 
-    private Dictionary<string, int> shootingAttributes;
-    private Dictionary<string, float> shootingPercentages;
+    //Properties
+    public Property MaxSpeed { get; private set; }
+    public Property SprintBonus { get; private set; }
+    public Property MaxJump { get; private set; }
+    public Property MaxEndur { get; private set; }
 
-    private float maxSpeed;
-    private float sprintBonus;
-    private float maxJump;
-    private float maxEndur;
-    private float stealProb;
+    public Property StealProb { get; private set; }
+    public Property StealFoulProb { get; private set; }
+    public Property StealAttemptLimit { get; private set; }
+    public Property StealAttemptWindow { get; private set; }
 
-    private float stealFoulProbability;
+    public Property ShotMeterSpeed { get; private set; }
+    private Dictionary<string, Property> shootingPercentages;
 
-    private int stealAttemptLimit;
-    private float stealAttemptWindow;
-
-    private float shotMeterSpeed;
-
-    public void InitializeAttributes()
+    public void Init ()
     {
-        //Make sure the attributes are in a valid range
-        speedAttr = Mathf.Clamp(speedAttr, 0, 25);
-        jumpAttr = Mathf.Clamp(jumpAttr, 0, 25);
-        endurAttr = Mathf.Clamp(endurAttr, 0, 25);
-        defenseAttr = Mathf.Clamp(defenseAttr, 0, 25);
+        shootingPercentages = new Dictionary<string, Property> {
+            //Shooting properties for each zone on the courts
+            { "paint", new Property(shotAttr, .5f, .5f) },
+            { "top_three", new Property(shotAttr, .5f, .5f) },
+            { "bottom_three", new Property(shotAttr, .5f, .5f) },
+            { "top_jumper", new Property(shotAttr, .5f, .5f) },
+            { "bottom_jumper", new Property(shotAttr, .5f, .5f) },
+            { "long_three", new Property(shotAttr, .5f, .5f) },
+            { "backcourt", new Property(shotAttr, .5f, .5f) }
+        };
 
-        //Shooting attributes for each zone on the court
-        shootingAttributes = new Dictionary<string, int>();
+        ShotMeterSpeed = new Property(shotAttr, 1.3f, 1.3f);
 
-        shootingAttributes.Add("paint", 10);
-        shootingAttributes.Add("top_three", 10);
-        shootingAttributes.Add("bottom_three", 10);
-        shootingAttributes.Add("top_jumper", 10);
-        shootingAttributes.Add("bottom_jumper", 10);
-        shootingAttributes.Add("long_three", 10);
-        shootingAttributes.Add("backcourt", 10);
+        MaxSpeed = new Property(speedAttr, 1.4f, 5f);
+        SprintBonus = new Property(speedAttr, 2f, 2f);
+        MaxEndur = new Property(endurAttr, 1.25f, 5f);
+        MaxJump = new Property(jumpAttr, 3.5f, 4.5f);
 
-        shootingPercentages = CalculateShootingPercentages();
-
-        //Calculate the variables dependent on attributes
-        maxSpeed = 1.4f + ((speedAttr) * .2f);
-        sprintBonus = 2f;
-        maxJump = 3.5f + ((jumpAttr) * .04f);
-        maxEndur = 1.25f + ((endurAttr) * .15f);
-        stealProb = (5 + (defenseAttr)) / 100f;
-
-        stealFoulProbability = 1f;
-
-        stealAttemptLimit = 3;
-        stealAttemptWindow = 3f;
-
-        shotMeterSpeed = .8f;
+        StealProb = new Property(defenseAttr, .05f, .30f);
+        StealFoulProb = new Property(defenseAttr, 1f, 1f);
+        StealAttemptLimit = new Property(defenseAttr, 3f, 3f);
+        StealAttemptWindow = new Property(defenseAttr, 3f, 3f);
     }
 
-    //Calculates the shooting percentages based on the corresponding attributes
-    private Dictionary<string, float> CalculateShootingPercentages()
+    public float GetShotPercentage(string zoneName) { return shootingPercentages[zoneName].Value; }
+
+    private void OnValidate()
     {
-        Dictionary<string, float> shootingPercentages = new Dictionary<string, float>();
-
-        foreach(KeyValuePair<string, int> entry in shootingAttributes) {
-            shootingPercentages.Add(entry.Key, .5f);
-        }
-
-        return shootingPercentages;
+        speedAttr.SetValue();
+        shotAttr.SetValue();
+        jumpAttr.SetValue();
+        endurAttr.SetValue();
+        defenseAttr.SetValue();
     }
-
-    public float GetShotPercentage(string zoneName) { return shootingPercentages[zoneName]; }
-    
-    public float GetStealProbability() { return stealProb; }
-
-    public float GetStealFoulProbability() { return stealFoulProbability; }
-     
-    public float GetMaxJump() { return maxJump; }
-
-    public float GetMaxSpeed() { return maxSpeed; }
-
-    public float GetMaxEndurance() { return maxEndur; }
-
-    public float GetShotMeterSpeed() { return shotMeterSpeed; }
-
-    public float GetSprintBonus() { return sprintBonus; }
-
-    public int GetStealAttemptLimit() { return stealAttemptLimit; }
-
-    public float GetStealAttemptWindow() { return stealAttemptWindow; }
-
 }

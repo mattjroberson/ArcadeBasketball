@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class OnBallOffenseIntelligence : ArtificialIntelligence
 {
-    public OnBallOffenseIntelligence(IntelligenceContainer intelligence) : base(intelligence) { }
+    public OnBallOffenseIntelligence(PlayerScript player, ActionsScript actions) : base(player, actions) { }
 
     public override void FixedUpdateIntelligence() { }
+
+    public override void Wake() { }
 
     public override void UpdateIntelligence() { }
 }

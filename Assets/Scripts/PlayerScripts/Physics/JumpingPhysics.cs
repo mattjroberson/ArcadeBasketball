@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
 
 public class JumpingPhysics : PlayerPhysicsType
@@ -18,12 +19,13 @@ public class JumpingPhysics : PlayerPhysicsType
 
     public void Begin(float scalar)
     {
-        jumpVelocity = new Vector2(0, player.Attributes.GetMaxJump() * scalar);
+        jumpVelocity = new Vector2(0, player.Attributes.MaxJump.Value * scalar);
         player.States.FloorPos = player.FrontPoint.FloorPosition;
         JumpY = Position.y;
 
         physics.SetAirborn(true);
         physics.CurrentState = MovePhysics.MoveState.JUMPING;
+        //t = Time.realtimeSinceStartup;
     }
     public override void Update()
     {
@@ -48,5 +50,6 @@ public class JumpingPhysics : PlayerPhysicsType
         physics.CurrentState = MovePhysics.MoveState.RUNNING;
 
         actions.GetJumpAction().End();
+        //UnityEngine.Debug.Log(Time.realtimeSinceStartup - t);
     }
 }

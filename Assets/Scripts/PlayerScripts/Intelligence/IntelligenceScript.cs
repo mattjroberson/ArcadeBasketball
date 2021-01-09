@@ -2,23 +2,20 @@
 
 public abstract class IntelligenceScript
 {
-    protected IntelligenceContainer intelligence;
+    protected PlayerScript player;
     protected ActionsScript actions;
-    protected PlayerStateScript playerStates;
 
-    public IntelligenceScript(IntelligenceContainer intelligence)
+    public IntelligenceScript(PlayerScript player, ActionsScript actions)
     {
-        this.intelligence = intelligence;
+        this.player = player;
+        this.actions = actions;
 
-        actions = intelligence.Actions;
-        playerStates = intelligence.PlayerStates;
-
-        SetMoveDirection(Vector2.zero);
+        player.States.CurrentMoveDirection = Vector2.zero;
     }
 
     public abstract void FixedUpdateIntelligence();
 
     public abstract void UpdateIntelligence();
 
-    public void SetMoveDirection(Vector2 moveDirection) { playerStates.CurrentMoveDirection = moveDirection; }
+    public abstract void Wake();
 }

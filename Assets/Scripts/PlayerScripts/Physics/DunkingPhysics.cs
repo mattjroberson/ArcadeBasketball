@@ -25,7 +25,7 @@ public class DunkingPhysics : PlayerPhysicsType
         straightDunking = dunkTrajectory[0] == 0;
 
         dunkSpeed = (straightDunking) ? physics.STRAIGHT_DUNK_SPEED : CalculateArcDunkSpeed();
-        bool inFront = Position.x < player.Team.DunkTarget.PlayerPos.x;
+        bool inFront = Position.x < player.Team.Side.DunkTarget.PlayerPos.x;
 
         CompareX = inFront ? (Func<float, float, bool>) GreaterThan : LessThan;
         CompareY = (straightDunking) ? (Func<float, float, bool>) GreaterThan : LessThan;
@@ -42,17 +42,17 @@ public class DunkingPhysics : PlayerPhysicsType
         Position = (straightDunking) ? MoveStraight() : MoveArc();
 
         //If player reaches the dunk target, stop dunking
-        bool reachedX = CompareX(Position.x, player.Team.DunkTarget.PlayerPos.x);
-        bool reachedY = CompareY(Position.y, player.Team.DunkTarget.PlayerPos.y);
+        bool reachedX = CompareX(Position.x, player.Team.Side.DunkTarget.PlayerPos.x);
+        bool reachedY = CompareY(Position.y, player.Team.Side.DunkTarget.PlayerPos.y);
 
         if (reachedX && reachedY) End();
     }
 
     public override void End()
     {
-        player.States.FloorPos = new Vector2(Position.x, player.Team.DriveTarget.FrontPointPos.y);
+        player.States.FloorPos = new Vector2(Position.x, player.Team.Side.DriveTarget.FrontPointPos.y);
 
-        physics.SetJumpY(player.Team.DriveTarget.PlayerPos.y);
+        physics.SetJumpY(player.Team.Side.DriveTarget.PlayerPos.y);
         physics.CurrentState = MovePhysics.MoveState.JUMPING;
         actions.GetDunkAction().Stop();
     }
@@ -77,17 +77,17 @@ public class DunkingPhysics : PlayerPhysicsType
 
     private float[] CalculateDunkTrajectory()
     {
-        float distToDunkX = player.Team.DunkTarget.PlayerPos.x - Position.x;
+        float distToDunkX = player.Team.Side.DunkTarget.PlayerPos.x - Position.x;
 
         if(distToDunkX < STRAIGHT_DUNK_MARGIN) 
-            return TrajectoryScript.CalculateStraightTrajectory(Position, player.Team.DunkTarget.PlayerPos);
+            return TrajectoryScript.CalculateStraightTrajectory(Position, player.Team.Side.DunkTarget.PlayerPos);
         else 
-            return TrajectoryScript.CalculateTrajectory(Position, player.Team.DunkTarget.PlayerPos, DUNK_ANGLE, DUNK_ARC_PEAK_PERCENT);
+            return TrajectoryScript.CalculateTrajectory(Position, player.Team.Side.DunkTarget.PlayerPos, DUNK_ANGLE, DUNK_ARC_PEAK_PERCENT);
     }
 
     private float CalculateArcDunkSpeed()
     {
-        float distToDunkX = player.Team.DunkTarget.PlayerPos.x - Position.x;
+        float distToDunkX = player.Team.Side.DunkTarget.PlayerPos.x - Position.x;
         float scalar = distToDunkX / physics.MEAN_DUNK_LENGTH;
         float newSpeed = physics.MEAN_DUNK_X_SPEED * scalar;
 
@@ -98,7 +98,7 @@ public class DunkingPhysics : PlayerPhysicsType
 
     private void FaceGoalDir()
     {
-        physics.HandleOrientation(player.Team.Goal.isRightGoal ? 1 : -1);
+        physics.HandleOrientation(player.Team.Side.Goal.isRightGoal ? 1 : -1);
     }
 
     private Func<float, float, bool> CompareX;

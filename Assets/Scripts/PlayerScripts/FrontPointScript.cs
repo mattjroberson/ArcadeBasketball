@@ -2,12 +2,12 @@
 
 public class FrontPointScript : MonoBehaviour
 {
-    private PlayerStateScript playerStates;
+    private PlayerScript player;
 
-    public Vector2 FloorPosition => playerStates.IsAirborn ? playerStates.FloorPos : (Vector2)transform.position;
+    public Vector2 FloorPosition => player.States.IsAirborn ? player.States.FloorPos : (Vector2)transform.position;
     void Start()
     {
-        playerStates = GetComponentInParent<PlayerStateScript>();
+        player = GetComponentInParent<PlayerScript>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -24,15 +24,15 @@ public class FrontPointScript : MonoBehaviour
     {
         if (other.name == "auto_dunk")
         {
-            playerStates.InAutoDunkZone = val;
+            player.States.InAutoDunkZone = val;
         }
         else if (other.name == "moving_dunk")
         {
-            playerStates.InMovingDunkZone = val;
+            player.States.InMovingDunkZone = val;
         }
         else if (other.tag == "shotZone")
         {
-            if(val == true) playerStates.ShotZoneName = other.name;
+            if(val == true) player.States.ShotZoneName = other.name;
         }
     }
 }

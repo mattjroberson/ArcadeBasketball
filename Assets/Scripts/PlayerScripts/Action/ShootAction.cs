@@ -4,12 +4,16 @@ using UnityEngine;
 public class ShootAction : ILongAction
 {
     private readonly ActionsScript actions;
+    private readonly PlayerScript player;
     private bool isShooting;
     private bool playerWalked;
 
-    public ShootAction(ActionsScript actions)
+    private float jumpScalar = 1f;
+
+    public ShootAction(ActionsScript actions, PlayerScript player)
     {
         this.actions = actions;
+        this.player = player;
         isShooting = false;
         playerWalked = false;
     }
@@ -19,9 +23,11 @@ public class ShootAction : ILongAction
         isShooting = true;
         playerWalked = false;
 
-        actions.GetJumpAction().Start(1f);
+        actions.GetJumpAction().Start(jumpScalar);
         actions.events.ShootBegin();
-        GameLogicScript.Instance.SetPlaybackSpeedOnShot();
+
+        Vector2 slowMoVars = GetSloMoVariables();
+        GameLogicScript.Instance.SetPlaybackSpeedOnShot(slowMoVars.x, slowMoVars.y);
     }
 
     public void Stop()
@@ -49,5 +55,12 @@ public class ShootAction : ILongAction
         Debug.Log("walked!");
         playerWalked = true;
         Stop();
+    }
+
+    private Vector2 GetSloMoVariables()
+    {
+        float jumpTime = (2 * (player.Attributes.MaxJump.Value * jumpScalar)) / -Physics2D.gravity.y;
+        float meterTime = player.Attributes.ShotMeterSpeed.Value;
+        return new Vector2(jumpTime, meterTime);
     }
 }

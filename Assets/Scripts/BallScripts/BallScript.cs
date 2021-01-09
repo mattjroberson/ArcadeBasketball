@@ -143,9 +143,7 @@ public class BallScript : MonoBehaviour
 
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
     {
-        PlayerStateScript playerStates = target.GetComponent<PlayerStateScript>();
-
-        while (playerStates.IsAirborn)
+        while (target.States.IsAirborn)
         {
             yield return new WaitForSeconds(0.1f);
         }
@@ -192,7 +190,9 @@ public class BallScript : MonoBehaviour
         state = BallState.POSESSED;
 
         transform.SetParent(currentHandler.Hands);
-        transform.position = currentHandler.Hands.position;
+
+        //transform.position = currentHandler.Hands.position;
+        transform.localPosition = Vector2.zero;
 
         GameEvents.Instance.PossessionChange(newBallHandler);
     }
