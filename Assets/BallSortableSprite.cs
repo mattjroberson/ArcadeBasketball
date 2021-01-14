@@ -27,10 +27,10 @@ public class BallSortableSprite : MonoBehaviour, ISortableSprite
         BallEvents.Instance.onBallShot += ShotReleasedEvent;
     }
 
-    private void PassSentEvent(PlayerScript player)
+    private void PassSentEvent()
     {
         SpriteRenderer.enabled = true;
-        passFloorDisplacement = transform.position.y -  ball.GetBallHandler().FrontPoint.FloorPosition.y;
+        passFloorDisplacement = transform.position.y -  ball.GetBallHandler().States.FloorPosition.y;
         CurrentPosition = Passing;
     }
     private void BallLooseEvent(Vector2 landingPos)

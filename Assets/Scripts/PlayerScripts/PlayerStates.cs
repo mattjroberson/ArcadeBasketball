@@ -9,12 +9,14 @@ public class PlayerStates
 
     public string ShotZoneName { get; set; }
     public bool HasBall { get; set; }
-    public bool WaitingOnPass { get; set; }
     public bool IsAirborn { get; set; }
-    public bool IsFrozen => WaitingOnPass;
+    public bool IsFrozen { get; set; }
     public bool IsOffense { get; }
     public Vector2 CurrentMoveDirection { get; set; }
-    public Vector2 FloorPos { get; set; }
+    public Vector2 FloorPosAirborn { get; set; }
+    public Vector2 FloorPosition => player.States.IsAirborn ? player.States.FloorPosAirborn : (Vector2)player.FrontPointTransform.position;
+    public Vector2 FeetPosition => new Vector2(player.transform.position.x, FloorPosition.y);
+
 
     public PlayerStates(PlayerScript player)
     {
@@ -23,7 +25,7 @@ public class PlayerStates
         CheckForPossession();
 
         CurrentMoveDirection = Vector2.zero;
-        WaitingOnPass = false;
+        IsFrozen = false;
         IsAirborn = false;
     }
 

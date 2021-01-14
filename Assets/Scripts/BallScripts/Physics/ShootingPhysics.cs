@@ -27,7 +27,7 @@ public class ShootingPhysics : BallPhysicsType
         this.shooter = shooter;
         this.madeShot = madeShot;
 
-        shotRightOfGoal = shooter.FrontPoint.FloorPosition.x > targetPos.x;
+        shotRightOfGoal = shooter.States.FloorPosition.x > targetPos.x;
         shotDistFromCenter = Position.y - targetPos.y;
 
         //Calculate the physics of the shot
@@ -82,9 +82,9 @@ public class ShootingPhysics : BallPhysicsType
     //Returns true if the defender is between the shooter & the basket and close to shooter
     private bool IsInBlockRange(PlayerScript shooter, PlayerScript defender, BallPhysicsAttributesSO fields)
     {
-        Vector2 p1 = shooter.FrontPoint.FloorPosition;
+        Vector2 p1 = shooter.States.FloorPosition;
         Vector2 p2 = TargetGoal.baseOfGoal.position;
-        Vector2 p3 = defender.FrontPoint.FloorPosition;
+        Vector2 p3 = defender.States.FloorPosition;
 
         Vector2 a1 = p1 - p2;
         Vector2 a2 = p3 - p2;
@@ -120,7 +120,7 @@ public class ShootingPhysics : BallPhysicsType
         Position = targetPos;
 
         if (madeShot) ball.DropFromGoal(TargetGoal);
-        else ball.BounceOffGoal(TargetGoal, shooter.FrontPoint.FloorPosition, ShootingSpeed);
+        else ball.BounceOffGoal(TargetGoal, shooter.States.FloorPosition, ShootingSpeed);
 
         ball.FinishShot();
     }

@@ -34,7 +34,7 @@ public class AttributeSO : ScriptableObject
             { "bottom_three", new Property(shotAttr, .5f, .5f) },
             { "top_jumper", new Property(shotAttr, .5f, .5f) },
             { "bottom_jumper", new Property(shotAttr, .5f, .5f) },
-            { "long_three", new Property(shotAttr, .5f, .5f) },
+            { "long_three", new Property(shotAttr, 0f, 0f) },
             { "backcourt", new Property(shotAttr, .5f, .5f) }
         };
 

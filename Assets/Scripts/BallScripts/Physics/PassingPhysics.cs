@@ -11,7 +11,7 @@ public class PassingPhysics : BallPhysicsType
 
     public void StartPass(PlayerScript targetPlayer)
     {
-        Vector2 target = targetPlayer.Hands.position;
+        Vector2 target = targetPlayer.HandsTransform.position;
 
         Vector2 newVelocity = CalculateVelocity(target);
         velocity = newVelocity;

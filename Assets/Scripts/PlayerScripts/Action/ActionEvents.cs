@@ -80,4 +80,10 @@ public class ActionEvents
     {
         onEnduranceDepleted?.Invoke();
     }
+
+    public event Action<string> onAiZoneTouched;
+    public void TouchedAiZone(string zone)
+    {
+        onAiZoneTouched?.Invoke(zone);
+    }
 }

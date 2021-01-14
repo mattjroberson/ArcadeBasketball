@@ -5,7 +5,9 @@ Make sure abstract inheritance types are uniformly designed. Actions, Intelligen
 Look into refactoring jump scalar
 
 
-Notes for tomorrow: Think about passing player ref through events to check for equality
-		    Maybe need to restructure intels so event are getting called unnecessarily.
-		    Make the left side into a prefab of the right
-		    Past Me thinks we did fantastic tonight
+Notes: May need to clear IntelState handlerTargetName on Wake
+       Make the left side into a prefab of the right
+       Maybe Refactor how FeetPosition is referenced (Creating new vector each call rn)
+       Make CheckForJump in ArtIntel into a raycast2D (Remove ball ref from GameLogic)
+
+       

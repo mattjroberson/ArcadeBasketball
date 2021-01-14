@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 
-public abstract class IntelligenceScript
+public abstract class IntelligenceType
 {
     protected PlayerScript player;
     protected ActionsScript actions;
+    protected bool awake;
 
-    public IntelligenceScript(PlayerScript player, ActionsScript actions)
+    public IntelligenceType(PlayerScript player, ActionsScript actions)
     {
         this.player = player;
         this.actions = actions;
@@ -13,9 +14,9 @@ public abstract class IntelligenceScript
         player.States.CurrentMoveDirection = Vector2.zero;
     }
 
-    public abstract void FixedUpdateIntelligence();
-
     public abstract void UpdateIntelligence();
 
-    public abstract void Wake();
+    public virtual void Wake() { awake = true; }
+
+    public virtual void Sleep() { awake = false; }
 }

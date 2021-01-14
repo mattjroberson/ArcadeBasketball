@@ -79,6 +79,24 @@ public class ActionsScript : MonoBehaviour
         BallEvents.Instance.BallTouchedFoot(player);
     }
 
+    public void TouchAiZone(string zone)
+    {
+        events.TouchedAiZone(zone);
+    }
+
+    public void SetShotZoneFlag(Collider2D other, bool val)
+    {
+        if (other.name == "auto_dunk") {
+            player.States.InAutoDunkZone = val;
+        }
+        else if (other.name == "moving_dunk") {
+            player.States.InMovingDunkZone = val;
+        }
+        else if (other.tag == "shotZone") {
+            if (val == true) player.States.ShotZoneName = other.name;
+        }
+    }
+
     public void ReachForSteal()
     {
         events.SwipeBegin();
@@ -94,14 +112,14 @@ public class ActionsScript : MonoBehaviour
         player.States.HasBall = (newBallHandler == player);
     }
 
-    private void PassSentEvent(PlayerScript receiver)
+    private void PassSentEvent()
     {
-        if (player == receiver) player.States.WaitingOnPass = true;
+        player.States.IsFrozen = true;
     }
 
-    private void PassReceivedEvent(PlayerScript receiver)
+    private void PassReceivedEvent()
     {
-        if (player.States.WaitingOnPass) player.States.WaitingOnPass = false;
+        player.States.IsFrozen = false;
     }
 
     public void EnduranceDepleted() { events.EnduranceDepleted(); }

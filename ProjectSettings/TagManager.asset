@@ -7,6 +7,8 @@ TagManager:
   - shotZone
   - dunkZone
   - basketball
+  - aiZone
+  - trackingZone
   layers:
   - Default
   - TransparentFX
@@ -23,7 +25,7 @@ TagManager:
   - FrontPointColliders
   - CourtZones
   - DefenderFilter
-  - 
+  - TrackingLayer
   - 
   - 
   - 

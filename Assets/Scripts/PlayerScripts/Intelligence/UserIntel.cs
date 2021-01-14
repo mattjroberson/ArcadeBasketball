@@ -1,19 +1,25 @@
 ﻿using UnityEngine;
 
-public class UserIntelligence : IntelligenceScript
+public class UserIntel : IntelligenceType
 {
     private InputController inputController;
 
     private bool jumpPressed;
     private bool sprintPressed;
 
-    public UserIntelligence(PlayerScript player, ActionsScript actions) : base(player, actions) {
+    public UserIntel(PlayerScript player, ActionsScript actions) : base(player, actions) {
         inputController = GameObject.Find("InputController").GetComponent<InputController>();
     }
 
-    public override void FixedUpdateIntelligence() {}
+    public override void Wake() { 
+        base.Wake();
+        actions.events.onAiZoneTouched += AiZoneTouchedEvent;
+    }
 
-    public override void Wake() {}
+    public override void Sleep() { 
+        base.Sleep();
+        actions.events.onAiZoneTouched -= AiZoneTouchedEvent;
+    }
 
     public override void UpdateIntelligence()
     {
@@ -73,5 +79,10 @@ public class UserIntelligence : IntelligenceScript
             if (isStart == true) actions.GetJumpAction().Start(1);
             else actions.GetJumpAction().Stop();
         }
+    }
+
+    private void AiZoneTouchedEvent(string name)
+    {
+        if (player.States.HasBall) player.Team.IntelStates.BallHandlerPositionUpdated(name);
     }
 }

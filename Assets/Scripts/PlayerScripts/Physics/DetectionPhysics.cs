@@ -40,7 +40,7 @@ public class DetectionPhysics : MonoBehaviour
 
         RaycastProperties rayProps = type.Equals("steal") ? stealRaycastProps : shootRaycastProps;
         
-        Vector2 raySource = player.FrontPoint.FloorPosition;
+        Vector2 raySource = player.States.FloorPosition;
         Vector2 rayRotation = type.Equals("steal") ? Vector2.zero : GetDirectionToGoal(raySource);
         Vector2 rayDirection = facingRight ? Vector2.right : Vector2.left;
 

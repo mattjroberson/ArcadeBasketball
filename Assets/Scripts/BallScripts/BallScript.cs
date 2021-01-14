@@ -114,7 +114,7 @@ public class BallScript : MonoBehaviour
     private void DunkEvent(GoalScript goal, bool madeShot)
     {
         if (madeShot) DropFromGoal(goal);
-        else BounceOffGoal(goal, currentHandler.FrontPoint.FloorPosition, DUNK_SPEED);
+        else BounceOffGoal(goal, currentHandler.States.FloorPosition, DUNK_SPEED);
 
         transform.SetParent(looseBallContainer);
         HandleLooseBall();
@@ -122,7 +122,7 @@ public class BallScript : MonoBehaviour
 
     private void OnPassReceived(PlayerScript player)
     {
-        GameEvents.Instance.PassReceived(player);
+        GameEvents.Instance.PassReceived();
         ChangePossession(player);
     }
 
@@ -133,7 +133,7 @@ public class BallScript : MonoBehaviour
 
     public void OnShotBlocked()
     {
-        Vector2 shooterFootPos = currentHandler.FrontPoint.FloorPosition;
+        Vector2 shooterFootPos = currentHandler.States.FloorPosition;
 
         looseBall.BounceOffBlock(shooting.TargetGoal, shooterFootPos);
         StartCoroutine(BlockedShotCooldown());
@@ -152,7 +152,7 @@ public class BallScript : MonoBehaviour
         state = BallState.PASSING;
 
         transform.SetParent(looseBallContainer);
-        GameEvents.Instance.PassSent(target);
+        GameEvents.Instance.PassSent();
     }
 
     private IEnumerator BlockedShotCooldown()
@@ -189,7 +189,7 @@ public class BallScript : MonoBehaviour
         currentHandler = newBallHandler;
         state = BallState.POSESSED;
 
-        transform.SetParent(currentHandler.Hands);
+        transform.SetParent(currentHandler.HandsTransform);
 
         //transform.position = currentHandler.Hands.position;
         transform.localPosition = Vector2.zero;

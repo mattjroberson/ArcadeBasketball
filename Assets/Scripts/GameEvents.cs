@@ -23,16 +23,16 @@ public sealed class GameEvents
         onUserPlayerSwitch?.Invoke(oldUser);
     }
 
-    public event Action<PlayerScript> onPassSent;
-    public void PassSent(PlayerScript receiver)
+    public event Action onPassSent;
+    public void PassSent()
     {
-        onPassSent?.Invoke(receiver);
+        onPassSent?.Invoke();
     }
 
-    public event Action<PlayerScript> onPassReceived;
-    public void PassReceived(PlayerScript receiver)
+    public event Action onPassReceived;
+    public void PassReceived()
     {
-        onPassReceived?.Invoke(receiver);
+        onPassReceived?.Invoke();
     }
 
     public event Action<Vector2> onBallLoose;

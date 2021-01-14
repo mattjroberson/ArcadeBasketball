@@ -14,19 +14,19 @@ public class PlayerScript : MonoBehaviour, ISortableSprite
     private PlayerStates playerStates;
     public PlayerStates States => playerStates;
 
-    private FrontPointScript frontPoint;
-    public FrontPointScript FrontPoint => frontPoint;
-
     private TeamScript teamScript;
     public TeamScript Team => teamScript;
 
-    private Transform hands;
-    public Transform Hands => hands.transform;
+    private Transform handsTransform;
+    public Transform HandsTransform => handsTransform;
+
+    private Transform frontPointTransform;
+    public Transform FrontPointTransform => frontPointTransform;
 
     private SpriteRenderer spriteRenderer;
     public SpriteRenderer SpriteRenderer => spriteRenderer;
 
-    public float SortPosition => FrontPoint.FloorPosition.y;
+    public float SortPosition => States.FloorPosition.y;
 
     public void Awake()
     {
@@ -39,8 +39,8 @@ public class PlayerScript : MonoBehaviour, ISortableSprite
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        hands = GetComponentInChildren<HandScript>().transform;
-        frontPoint = GetComponentInChildren<FrontPointScript>();
+        handsTransform = GetComponentInChildren<HandScript>().transform;
+        frontPointTransform = GetComponentInChildren<FrontPointScript>().transform;
     }
 
 }

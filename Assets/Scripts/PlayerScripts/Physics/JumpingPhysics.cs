@@ -20,7 +20,7 @@ public class JumpingPhysics : PlayerPhysicsType
     public void Begin(float scalar)
     {
         jumpVelocity = new Vector2(0, player.Attributes.MaxJump.Value * scalar);
-        player.States.FloorPos = player.FrontPoint.FloorPosition;
+        player.States.FloorPosAirborn = player.States.FloorPosition;
         JumpY = Position.y;
 
         physics.SetAirborn(true);

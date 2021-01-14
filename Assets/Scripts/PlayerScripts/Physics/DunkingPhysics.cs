@@ -50,7 +50,7 @@ public class DunkingPhysics : PlayerPhysicsType
 
     public override void End()
     {
-        player.States.FloorPos = new Vector2(Position.x, player.Team.Side.DriveTarget.FrontPointPos.y);
+        player.States.FloorPosAirborn = new Vector2(Position.x, player.Team.Side.DriveTarget.FrontPointPos.y);
 
         physics.SetJumpY(player.Team.Side.DriveTarget.PlayerPos.y);
         physics.CurrentState = MovePhysics.MoveState.JUMPING;

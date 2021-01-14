@@ -1,32 +1,31 @@
 ﻿using UnityEngine;
 
-public class IntelligenceContainer : MonoBehaviour
+public class IntelligenceManager : MonoBehaviour
 {
     public enum IntelligenceType { USER, OFFBALL_OFF, ONBALL_OFF, OFFBALL_DEF, ONBALL_DEF };
     [SerializeField] private IntelligenceType intelType;
 
     private ActionsScript actions;
-    public ActionsScript Actions => actions;
-
     private PlayerScript player;
 
-    private IntelligenceScript current;
-    private IntelligenceScript userIntel;
-    private IntelligenceScript offBallOffIntel;
-    private IntelligenceScript onBallOffIntel;
-    private IntelligenceScript offBallDefIntel;
-    private IntelligenceScript onBallDefIntel;
+    //TODO Make sure we want to do this global tag
+    private global::IntelligenceType current;
+    private global::IntelligenceType userIntel;
+    private global::IntelligenceType offBallOffIntel;
+    private global::IntelligenceType onBallOffIntel;
+    private global::IntelligenceType offBallDefIntel;
+    private global::IntelligenceType onBallDefIntel;
 
     public void Start()
     {
         player = GetComponentInParent<PlayerScript>();
         actions = GetComponentInParent<ActionsScript>();
 
-        userIntel = new UserIntelligence(player, actions);
-        offBallOffIntel = new OffBallOffenseIntelligence(player, actions);
-        onBallOffIntel = new OnBallOffenseIntelligence(player, actions);
-        offBallDefIntel = new OffBallDefenseIntelligence(player, actions);
-        onBallDefIntel = new OnBallDefenseIntelligence(player, actions);
+        userIntel = new UserIntel(player, actions);
+        offBallOffIntel = new OffBallOffenseIntel(player, actions);
+        onBallOffIntel = new OnBallOffenseIntel(player, actions);
+        offBallDefIntel = new OffBallDefenseIntel(player, actions);
+        onBallDefIntel = new OnBallDefenseIntel(player, actions);
 
         SetIntelligenceType(intelType);
 
@@ -41,6 +40,7 @@ public class IntelligenceContainer : MonoBehaviour
 
     private void SetIntelligenceType(IntelligenceType type)
     {
+        current?.Sleep();
         intelType = type;
 
         switch (type) {

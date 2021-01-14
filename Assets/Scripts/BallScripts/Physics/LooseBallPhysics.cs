@@ -40,7 +40,7 @@ public class LooseBallPhysics : BallPhysicsType
 
     public void CheckForRebound(PlayerScript player)
     {
-        if (IsInReboundRange(player.FrontPoint)) ball.OnBallPickup(player);
+        if (IsInReboundRange(player.States.FloorPosition.y)) ball.OnBallPickup(player);
     }
 
     public void DrawShadow(GameObject shadowPrefab, float ballSize)
@@ -84,10 +84,8 @@ public class LooseBallPhysics : BallPhysicsType
         velocity = velocity * -1 * fields.BounceFactor;
     }
     
-    private bool IsInReboundRange(FrontPointScript frontPoint)
+    private bool IsInReboundRange(float playerY)
     {
-        float playerY = frontPoint.FloorPosition.y;
-
         bool belowTopMargin = playerY > ballFloor.y - fields.ReboundFloorMargin;
         bool aboveBotMargin = playerY < ballFloor.y + fields.ReboundFloorMargin;
 
@@ -120,15 +118,23 @@ public class LooseBallPhysics : BallPhysicsType
             reboundFloorY = Random.Range(underBasketY, shootingPlayerY);
         }
 
-        return new Vector2(0, reboundFloorY);
+        float timeTillGround = CalculateTimeTillGround(reboundFloorY);
+        float reboundFloorX = CalculateXPositionAtTime(timeTillGround);
+
+        return new Vector2(reboundFloorX, reboundFloorY);
     }
 
     private float CalculateTimeTillGround()
-    { 
+    {
+        return CalculateTimeTillGround(BallFloor.y);
+    }
+
+    private float CalculateTimeTillGround(float ballFloorY)
+    {
         //time = [-sqrt(vel^2 + (2 * -gravity * dist)) - vel] / gravity
-        float displacementY = Mathf.Abs(ballFloor.y - Position.y);
+        float displacementY = Mathf.Abs(ballFloorY - Position.y);
         float initVelocityY = velocity.y;
-        
+
         float discriminant = Mathf.Pow(initVelocityY, 2) + (2 * -Physics2D.gravity.y * displacementY);
         float numerator = -Mathf.Sqrt(discriminant) - initVelocityY;
         return numerator / Physics2D.gravity.y;

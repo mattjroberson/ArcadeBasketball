@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameLogicScript : MonoBehaviour
 {
+    public Transform BallTransform => ballTransform;
+    [SerializeField] private Transform ballTransform;
+
     private float targetPlaybackSpeed;
     private float slomoLerpValue;
     private float slomoLerpSpeed;
@@ -22,10 +25,6 @@ public class GameLogicScript : MonoBehaviour
         QualitySettings.vSyncCount = 0;
 
         lerpingPlayback = false;
-    }
-
-    public void Start()
-    {
     }
 
     public void Update()
