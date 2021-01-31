@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class InputController : MonoBehaviour
-{
+{    
     private Vector2 inputDirection;
 
     private bool jumpPressed;
@@ -58,11 +56,17 @@ public class InputController : MonoBehaviour
 
     public bool GetSprintPressed() { return sprintPressed; }
 
-    public bool GetSwitchPressed() { return switchPressed; }
+    public bool ReadSwitchPressed() 
+    {
+        bool curState = switchPressed; 
+        switchPressed = false;
+        return curState; 
+    }
 
-    public void SetSwitchPressed(bool newSwitchPressed) { switchPressed = newSwitchPressed; }
-
-    public bool GetStealPressed() { return stealPressed; }
-
-    public void SetStealPressed(bool newStealPressed) { stealPressed = newStealPressed; }
+    public bool ReadStealPressed()
+    {
+        bool curState = stealPressed;
+        stealPressed = false;
+        return curState;
+    }
 }

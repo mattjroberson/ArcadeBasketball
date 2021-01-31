@@ -4,87 +4,55 @@ using UnityEngine;
 
 public class GameLogicScript : MonoBehaviour
 {
-    private PlayerScript[] userPlayers;
-    private PlayerScript[] opponentPlayers;
-
-    private Dictionary<PlayerScript, Relationship> userPlayerRelationships;
-    private Dictionary<PlayerScript, Relationship> opponentPlayerRelationships;
-
-    private BallScript basketball;
+    public Transform BallTransform => ballTransform;
+    [SerializeField] private Transform ballTransform;
 
     private float targetPlaybackSpeed;
     private float slomoLerpValue;
     private float slomoLerpSpeed;
     private bool lerpingPlayback;
 
+    private const float TIME_TO_LERP_PERCENT = .10f;
+
+    public static GameLogicScript Instance;
+
     public void Awake()
     {
+        Instance = this;
+
         //Set up some display variables
         Application.targetFrameRate = 30;
         QualitySettings.vSyncCount = 0;
 
         lerpingPlayback = false;
-        slomoLerpSpeed = .3f;
-
-        basketball = GameObject.Find("Basketball").GetComponent<BallScript>();
-    }
-
-    public void Start()
-    {
-
-        userPlayers = GetPlayers("userTeam");
-        userPlayerRelationships = GetPlayerRelationships(userPlayers);
-
-        opponentPlayers = GetPlayers("opponentTeam");
-        opponentPlayerRelationships = GetPlayerRelationships(opponentPlayers);
     }
 
     public void Update()
     { 
         if (lerpingPlayback) {
-            float newTime = Mathf.Lerp(Time.timeScale, targetPlaybackSpeed, slomoLerpValue);
+            float newTime = Mathf.Lerp(1, targetPlaybackSpeed, slomoLerpValue);
             slomoLerpValue += slomoLerpSpeed * Time.unscaledDeltaTime;
             SetPlaybackSpeed(newTime);
 
             //Stop lerping when completely lerped
             if (newTime == targetPlaybackSpeed) {
-                Debug.Log("on");
                 lerpingPlayback = false;
             }
         }
     }
 
-    public void UpdatePossession(PlayerScript ballHandler)
+    public void SetPlaybackSpeedOnShot(float jumpTime, float meterTime)
     {
-        if (IsUserPlayer(ballHandler)) {
-            Relationship relationship = userPlayerRelationships[ballHandler];
-
-            ballHandler.HandlePossession(true, IntelligenceContainer.IntelligenceType.USER);
-            relationship.teammate.HandlePossession(false, IntelligenceContainer.IntelligenceType.OFFBALL_OFF);
-            relationship.defender.HandlePossession(false, IntelligenceContainer.IntelligenceType.ONBALL_DEF);
-            relationship.opponent.HandlePossession(false, IntelligenceContainer.IntelligenceType.OFFBALL_DEF);
-        }
-        else {
-            Relationship relationship = opponentPlayerRelationships[ballHandler];
-
-            ballHandler.HandlePossession(true, IntelligenceContainer.IntelligenceType.ONBALL_OFF);
-            relationship.teammate.HandlePossession(false, IntelligenceContainer.IntelligenceType.OFFBALL_OFF);
-            relationship.defender.HandlePossession(false, IntelligenceContainer.IntelligenceType.ONBALL_DEF);
-            relationship.opponent.HandlePossession(false, IntelligenceContainer.IntelligenceType.OFFBALL_DEF);
-        }
+        slomoLerpValue = 0f;
+        targetPlaybackSpeed = jumpTime / meterTime;
+        slomoLerpSpeed = 1 / (jumpTime * TIME_TO_LERP_PERCENT);
+        lerpingPlayback = true;
     }
 
-    public void SetPlaybackSpeed(float speed, bool lerp)
+    public void ClearPlaybackSpeed()
     {
-        if (lerp == true) {
-            slomoLerpValue = 0f;
-            targetPlaybackSpeed = speed;
-        }
-        else {
-            SetPlaybackSpeed(speed);
-        }
-
-        lerpingPlayback = lerp;
+        lerpingPlayback = false;
+        SetPlaybackSpeed(1);
     }
 
     private void SetPlaybackSpeed(float speed) {
@@ -92,32 +60,14 @@ public class GameLogicScript : MonoBehaviour
         Time.fixedDeltaTime = Time.timeScale * .02f;
     }
 
-    private PlayerScript[] GetPlayers(string team)
+    //Check to see if the player is going to make the shot
+    public static bool CalculateIfMadeShot(float shotPercentage)
     {
-        return GameObject.Find(team).GetComponentsInChildren<PlayerScript>();
+        //Random value between 0 - 1
+        float chance = Random.value;
+
+        //If chance is within shotPercentage, return true
+        if (chance <= shotPercentage) return true;
+        else return false;
     }
-
-    //Build the relationships of the players
-    private Dictionary<PlayerScript, Relationship> GetPlayerRelationships(PlayerScript[] playerList)
-    {
-        Dictionary<PlayerScript, Relationship> relationships = new Dictionary<PlayerScript, Relationship>();
-
-        foreach(PlayerScript player in playerList){
-            relationships.Add(player, new Relationship(player));
-        }
-
-        return relationships;
-    }
-
-    //Returns true if the passed player is a user controlled player
-    private bool IsUserPlayer(PlayerScript testPlayer)
-    {
-        foreach (PlayerScript player in userPlayers) {
-            if (player.Equals(testPlayer)) return true;
-        }
-
-        return false;
-    }
-
-    public BallScript GetBasketball() { return basketball; }
 }

@@ -1,126 +1,90 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Extensions;
+public class ShootingPhysics : BallPhysicsType
+{    
+    public GoalScript TargetGoal { get; set; }
+    private Vector2 targetPos;
 
-public class ShootingPhysics
-{
-    private BallPhysicsScript physics;
-    private GoalScript targetGoal;
-
+    public float ShootingSpeed { get; set; }
     private float[] trajectory;
-    private float shootingSpeed;
 
-    public float maxRegShotSpeed;
-    public float maxShotSpeed;
-    public float minShotSpeed;
-    public float shotAngle;
-    public float shotAngleXPercent;
-    public float shotLowerYModifier;
-    public float shotUpperYModifier;
-    public float shotHalfCourtPos;
-    public float shotFarthestPos;
+    private PlayerScript shooter;
+    private bool madeShot;
 
-    private float maxBlockableAngle;
-    private float maxBlockableDistance;
-
-    private float shotDistFromCenter;
     private bool shotRightOfGoal;
+    private float shotDistFromCenter;
 
-    public ShootingPhysics(BallPhysicsScript physics)
+    public ShootingPhysics(BallScript ball) : base(ball)
     {
-        this.physics = physics;
-
-        maxRegShotSpeed = 4f;
-        maxShotSpeed = 5f;
-        minShotSpeed = 2.25f;
-
-        //Ball should approach 45 degrees 90% of the way to the goal
-        shotAngle = Mathf.PI / 4;
-        shotAngleXPercent = .9f;
-
-        shotHalfCourtPos = 5.5f;
-        shotFarthestPos = 13f;
-        shotLowerYModifier = .4f;
-        shotUpperYModifier = .6f;
-
-        //Blocking Parameters
-        maxBlockableAngle = 10f;
-        maxBlockableDistance = 1f;
+        madeShot = false;
     }
 
-    public void Update()
+    public void StartShot(PlayerScript shooter, GoalScript targetGoal, bool madeShot)
     {
-        //Basketball trajectory is a simple parabola y = ax^2+bx+c
-        float newX = physics.GetBallTransform().position.x + (shootingSpeed * Time.deltaTime);
-        float newY = (trajectory[0] * newX * newX) + (trajectory[1] * newX) + trajectory[2];
+        TargetGoal = targetGoal;
+        targetPos = targetGoal.basketCenter.position;
 
-        physics.SetPosition(new Vector2(newX, newY));
+        this.shooter = shooter;
+        this.madeShot = madeShot;
 
-        CheckIfShotFinished();
-        CheckIfShotBlocked();
-    }
-
-    public void StartShot(GoalScript targetGoal)
-    {
-        this.targetGoal = targetGoal;
-
-        //Set the target position
-        physics.SetTarget(targetGoal.basketCenter.position);
+        shotRightOfGoal = shooter.States.FloorPosition.x > targetPos.x;
+        shotDistFromCenter = Position.y - targetPos.y;
 
         //Calculate the physics of the shot
-        trajectory = TrajectoryScript.CalculateTrajectory(physics.GetBallTransform().position, physics.GetTarget(), shotAngle, shotAngleXPercent);
+        trajectory = TrajectoryScript.CalculateTrajectory(Position, targetPos,
+            fields.ShotAngle, fields.ShotAngleXPercent);
 
-        CalculateShootingSpeed();
+        ShootingSpeed = CalculateShootingSpeed();
     }
 
-    private void CalculateShootingSpeed()
+    public void CheckForBlock(PlayerScript shooter, PlayerScript defender)
     {
-        float distFromGoal = Mathf.Abs(physics.GetTarget().x - physics.GetBallTransform().position.x);
+        if (IsInBlockRange(shooter, defender, fields)) ball.OnShotBlocked();
+    }
+
+    public override void Update()
+    {
+        //Basketball trajectory is a simple parabola y = ax^2+bx+c
+        float newX = Position.x + (ShootingSpeed * Time.deltaTime);
+        float newY = (trajectory[0] * newX * newX) + (trajectory[1] * newX) + trajectory[2];
+
+        Position = new Vector2(newX, newY);
+
+        if (IsShotFinished()) FinishShot();
+    }
+
+    private float CalculateShootingSpeed()
+    {
+        float shootingSpeed;
+        float distFromGoal = Mathf.Abs(targetPos.x - Position.x);
 
         //Map the speed of the ball to the x distance the ball is away from the basket
-        if (distFromGoal < shotHalfCourtPos) {
+        if (distFromGoal < fields.ShotHalfCourtPos) {
             //If player is within half court, map to just half court
-            shootingSpeed = distFromGoal.Remap(0, shotHalfCourtPos, minShotSpeed, maxRegShotSpeed);
+            shootingSpeed = distFromGoal.Remap(0, fields.ShotHalfCourtPos, fields.MinShotSpeed, fields.MaxRegShotSpeed);
         }
         else {
             //If player is in the backcourt, map to backcourt
-            shootingSpeed = distFromGoal.Remap(shotHalfCourtPos, shotFarthestPos, maxRegShotSpeed, maxShotSpeed);
+            shootingSpeed = distFromGoal.Remap(fields.ShotHalfCourtPos, 
+                fields.ShotFarthestPos, fields.MaxRegShotSpeed, fields.MaxShotSpeed);
         }
 
         //Scale the speed of the ball based on y distance the ball is away from the basketball
-        float shotYModifier = (shotDistFromCenter < 0) ? shotUpperYModifier : shotLowerYModifier;
+        float shotYModifier = (shotDistFromCenter < 0) ? fields.ShotUpperSpeedMod : fields.ShotLowerSpeedMod;
         shootingSpeed -= Mathf.Abs(shotDistFromCenter) * shotYModifier;
 
         //Flip the direction of the speed if shooting behind the goal
         if (shotRightOfGoal == true) { shootingSpeed *= -1; }
-    }
 
-    private void CheckIfShotBlocked()
-    {
-        RaycastHit2D[] collisions = new RaycastHit2D[16];
-
-        int count = physics.GetBallCollider().Cast(Vector2.zero, physics.GetBallContactFilter(), collisions, 0);
-
-        for (int i = 0; i < count; i++) {
-            //Get a reference to the player potentially blocking
-            PlayerScript defender = collisions[i].transform.GetComponent<PlayerScript>();
-
-            //Don't count the shooter
-            if (defender == physics.GetBallScript().GetCurrentPlayer()) continue;
-
-            //If defender is in a correct position, block it
-            if (IsDefenderInShotPath(defender) == true) {
-                physics.GetBallScript().BlockShot();
-            }
-        }
+        return shootingSpeed;
     }
 
     //Returns true if the defender is between the shooter & the basket and close to shooter
-    private bool IsDefenderInShotPath(PlayerScript defender)
+    private bool IsInBlockRange(PlayerScript shooter, PlayerScript defender, BallPhysicsAttributesSO fields)
     {
-        Vector2 p1 = physics.GetBallScript().GetCurrentPlayer().GetFrontPoint().position;
-        Vector2 p2 = targetGoal.baseOfGoal.position;
-        Vector2 p3 = defender.GetFrontPoint().position;
+        Vector2 p1 = shooter.States.FloorPosition;
+        Vector2 p2 = TargetGoal.baseOfGoal.position;
+        Vector2 p3 = defender.States.FloorPosition;
 
         Vector2 a1 = p1 - p2;
         Vector2 a2 = p3 - p2;
@@ -129,20 +93,18 @@ public class ShootingPhysics
         float angle = Vector2.Angle(a1, a2);
 
         //In path
-        if (Mathf.Abs(angle) < maxBlockableAngle) {
+        if (Mathf.Abs(angle) < fields.MaxBlockableAngle) {
             //Close to player, block
-            if (a3.magnitude < maxBlockableDistance) {
-                return true;
-            }
+            if (a3.magnitude < fields.MaxBlockableDistance) return true;
         }
 
         return false;
     }
 
-    private void CheckIfShotFinished()
+    private bool IsShotFinished()
     {
         //Get the distance to the goal
-        Vector2 distanceToGoal = physics.GetTarget() - (Vector2)physics.GetBallTransform().position;
+        Vector2 distanceToGoal = targetPos - Position;
 
         //If the shot started to the right, flip the math
         if (shotRightOfGoal == true) {
@@ -150,26 +112,28 @@ public class ShootingPhysics
         }
 
         //If the ball has reached  the goal
-        if (distanceToGoal.x <= 0 && distanceToGoal.y >= 0) {
-            FinishShot();
-        }
+        return (distanceToGoal.x <= 0 && distanceToGoal.y >= 0);
     }
 
     private void FinishShot()
     {
-        //If made, ball just drops beneath the basket
-        if (physics.GetBallScript().GetMadeShot() == true) {
-            physics.SetVelocity(Vector2.zero);
-            physics.GetBallScript().SetBallFloor(targetGoal.underBasket.position);
-        }
-        //If missed, ball should bounce off goal
-        else {
-            physics.StartRebound();
-        }
+        Position = targetPos;
 
-        physics.SetPosition(physics.GetTarget());
-        physics.GetBallScript().HandleShotFinished();
+        if (madeShot) ball.DropFromGoal(TargetGoal);
+        else ball.BounceOffGoal(TargetGoal, shooter.States.FloorPosition, ShootingSpeed);
+
+        ball.FinishShot();
     }
+}
 
-    public float GetShootingSpeed() { return shootingSpeed; }
+namespace Extensions
+{
+    public static class ExtensionMethods
+    {
+        public static float Remap(this float value, float from1, float to1, float from2, float to2)
+        {
+            return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+        }
+
+    }
 }

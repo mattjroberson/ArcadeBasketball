@@ -1,183 +1,206 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
     public enum BallState { POSESSED, LOOSE, ON_GROUND, SHOOTING, PASSING }
-    private BallState ballState;
 
+    private BallState state;
+    public BallState State => state;
+
+    [SerializeField] private BallPhysicsAttributesSO fields;
+    public BallPhysicsAttributesSO Fields => fields;
+
+    [SerializeField] private float BLOCK_COOLDOWN = 2;
+    [SerializeField] private float DUNK_SPEED = 2.5f;
+
+    private PassingPhysics passing;
+    private ShootingPhysics shooting;
+    private LooseBallPhysics looseBall;
+
+    private PlayerScript currentHandler;
+    private Transform looseBallContainer;
+    private bool ignoringBall;
+
+    private SpriteRenderer sprite;
     private GameObject shadowPrefab;
 
-    private Transform looseBallContainer;
-    private BallPhysicsScript physics;
-    private SpriteRenderer sprite;
-
-    private PlayerScript currentPlayer;
-    private PlayerScript targetPlayer;
-    private GameLogicScript gameLogic;
-
-    private Vector2 madeShotBallFloor;
-    private Vector2 ballFloor;
-
-    private bool madeShot;
-
-    public void Awake()
+    private void Awake()
     {
-        SetBallState(BallState.POSESSED);
+        state = BallState.POSESSED;
+        ignoringBall = false;
     }
 
-    public void Start()
+    private void Start()
     {
+        passing = new PassingPhysics(this);
+        shooting = new ShootingPhysics(this);
+        looseBall = new LooseBallPhysics(this);
+
         looseBallContainer = GameObject.Find("LooseBallContainer").transform;
-        gameLogic = GameObject.Find("GameLogic").GetComponent<GameLogicScript>();
-        physics = GetComponent<BallPhysicsScript>();
         sprite = GetComponent<SpriteRenderer>();
 
-        //Get a reference to the current ball handler
-        currentPlayer = transform.GetComponentInParent<PlayerScript>();
+        currentHandler = GetComponentInParent<PlayerScript>();
 
         shadowPrefab = Resources.Load("Prefabs/BallShadowPrefab") as GameObject;
+
+        BallEvents.Instance.onBallShot += ShootEvent;
+        BallEvents.Instance.onDunkAttempt += DunkEvent;
+        BallEvents.Instance.onBallPassed += PassEvent;
+        BallEvents.Instance.onBallTouchedHand += BallTouchedHandEvent;
+        BallEvents.Instance.onBallTouchedFoot += BallTouchedFootEvent;
+        BallEvents.Instance.onBallStolen += StealEvent;
     }
 
-    public void LateUpdate()
+    private void FixedUpdate()
     {
-        //Only apply physics if not in a players hands
-        if(ballState != BallState.POSESSED) {
-            physics.UpdatePhysics();
+        switch (State)
+        {
+            case BallState.PASSING:
+                passing.Update();
+                break;
+            case BallState.SHOOTING:
+                shooting.Update();
+                break;
+            case BallState.LOOSE:
+                looseBall.Update();
+                break;
         }
     }
 
-    public void Pass(PlayerScript target)
+    private void PassEvent(PlayerScript target)
     {
         StartCoroutine(PassWhenTargetGrounded(target));
     }
 
-    public void RecievePass(PlayerScript target)
+    private void StealEvent(PlayerScript defender)
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
-
-        //Attach the ball to the player and update game logic, unfreeze player
-        transform.SetParent(target.GetHands());
-        currentPlayer = target;
-
-        gameLogic.UpdatePossession(target);
-        target.GetComponent<ActionsScript>().SetFrozen(false);
+        ChangePossession(defender);
     }
 
-    public void StealPass(PlayerScript defender, PlayerScript target)
+    private void BallTouchedHandEvent(PlayerScript player)
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
+        if (ignoringBall) return;
 
-        //Attach the ball to the player and update game logic, unfreeze target player
-        currentPlayer = defender;
-        transform.SetParent(defender.GetHands());
-
-        gameLogic.UpdatePossession(defender);
-        target.GetComponent<ActionsScript>().SetFrozen(false);
+        switch (State)
+        {
+            case BallState.PASSING:
+                OnPassReceived(player);
+                break;
+            case BallState.LOOSE:
+                looseBall.CheckForRebound(player);
+                break;
+            case BallState.SHOOTING:
+                if (player == currentHandler) return;
+                shooting.CheckForBlock(currentHandler, player);
+                break;
+        }
     }
 
-    public void StealBall(PlayerScript defender)
+    private void BallTouchedFootEvent(PlayerScript player)
     {
-        //Attach the ball to the defender and clear its local position
-        currentPlayer = defender;
-        transform.SetParent(defender.GetHands());
-        physics.SetLocalPosition(Vector2.zero);
+        if (ignoringBall) return;
+        if(State == BallState.ON_GROUND) OnBallPickup(player);
+    }
 
-        //Update the game logic
-        gameLogic.UpdatePossession(defender);
+    private void ShootEvent(GoalScript goal, bool madeShot)
+    {
+        shooting.StartShot(currentHandler, goal, madeShot);
+        state = BallState.SHOOTING;
+
+        transform.SetParent(looseBallContainer);
+    }
+
+    private void DunkEvent(GoalScript goal, bool madeShot)
+    {
+        if (madeShot) DropFromGoal(goal);
+        else BounceOffGoal(goal, currentHandler.States.FloorPosition, DUNK_SPEED);
+
+        transform.SetParent(looseBallContainer);
+        HandleLooseBall();
+    }
+
+    private void OnPassReceived(PlayerScript player)
+    {
+        GameEvents.Instance.PassReceived();
+        ChangePossession(player);
+    }
+
+    public void OnBallPickup(PlayerScript player)
+    {
+        ChangePossession(player);
+    }
+
+    public void OnShotBlocked()
+    {
+        Vector2 shooterFootPos = currentHandler.States.FloorPosition;
+
+        looseBall.BounceOffBlock(shooting.TargetGoal, shooterFootPos);
+        StartCoroutine(BlockedShotCooldown());
+
+        HandleLooseBall();
     }
 
     private IEnumerator PassWhenTargetGrounded(PlayerScript target)
     {
-        ActionsScript currentActionsScript = target.GetComponent<ActionsScript>();
-        targetPlayer = target;
-
-        //Wait till the player is on the ground to pass
-        while (currentActionsScript.IsJumping()) {
+        while (target.States.IsAirborn)
+        {
             yield return new WaitForSeconds(0.1f);
         }
 
-        currentActionsScript.SetFrozen(true);
+        passing.StartPass(target);
+        state = BallState.PASSING;
 
-        //Handle the physics of the pass
-        physics.StartPass(target);
-        SetBallState(BallState.PASSING);
-
-        //Dettach the ball from the player and notify the player
-        currentPlayer.SetHasBall(false);
         transform.SetParent(looseBallContainer);
+        GameEvents.Instance.PassSent();
     }
 
-    public void Shoot(GoalScript goal, bool madeShot)
+    private IEnumerator BlockedShotCooldown()
     {
-        this.madeShot = madeShot;
-
-        physics.StartShot(goal);
-        SetBallState(BallState.SHOOTING);
-
-        //Dettach the ball from the player and notify the player
-        currentPlayer.SetHasBall(false);
-        transform.SetParent(looseBallContainer);
+        ignoringBall = true;
+        yield return new WaitForSeconds(BLOCK_COOLDOWN);
+        ignoringBall = false;
     }
 
-    public void HandleShotFinished()
+    public void FinishShot()
     {
-        SetBallState(BallState.LOOSE);
-        DrawShadow();
+        HandleLooseBall();
     }
 
-    public void GrabBall(PlayerScript player)
+    public void CompleteBouncing()
     {
-        //Update the state of the ball
-        SetBallState(BallState.POSESSED);
-
-        //Attach the ball to the player and update game logic
-        currentPlayer = player;
-        transform.SetParent(player.GetHands());
-        physics.SetPosition(player.GetHands().position);
-
-        gameLogic.UpdatePossession(player);
+        state = BallState.ON_GROUND;
     }
 
-    public void BlockShot()
+    public void BounceOffGoal(GoalScript targetGoal, Vector2 shooterPos, float shotSpeed)
     {
-        Debug.Log("shot blocked");
-        SetBallState(BallState.LOOSE);
-        SetBallFloor(currentPlayer.GetFrontPoint().position);
-        DrawShadow();
-
-        physics.StartBlock();
+        looseBall.BounceOffGoal(targetGoal, shooterPos, shotSpeed);
     }
 
-    public void DrawShadow()
+    public void DropFromGoal(GoalScript targetGoal)
     {
-        float timeTillGround = physics.CalculateTimeTillGround();
-
-        Vector2 shadowPos = new Vector2();
-        shadowPos.x = physics.CalculateXPositionAtTime(timeTillGround);
-        shadowPos.y = ballFloor.y - (sprite.size.y / 2);
-
-        GameObject shadow = Instantiate(shadowPrefab, shadowPos, Quaternion.identity);
-        shadow.GetComponent<BallShadowScript>().Focus(timeTillGround);
+        looseBall.DropFromGoal(targetGoal);
     }
 
-    public BallState GetBallState() { return ballState; }
+    public PlayerScript GetBallHandler() { return currentHandler; }
 
-    public void SetBallState(BallState newBallState) { ballState = newBallState; }
+    private void ChangePossession(PlayerScript newBallHandler)
+    {
+        currentHandler = newBallHandler;
+        state = BallState.POSESSED;
 
-    public void SetBallFloor(Vector2 target) { ballFloor = target; }
+        transform.SetParent(currentHandler.HandsTransform);
 
-    public Vector2 GetTargetPosition() { return physics.GetTarget(); }
+        //transform.position = currentHandler.Hands.position;
+        transform.localPosition = Vector2.zero;
 
-    public PlayerScript GetCurrentPlayer() { return currentPlayer; }
+        GameEvents.Instance.PossessionChange(newBallHandler);
+    }
 
-    public PlayerScript GetTargetPlayer() { return targetPlayer; }
-
-    public bool GetMadeShot() { return madeShot; }
-
-    public Vector2 GetFloor() { return ballFloor; }
-
+    private void HandleLooseBall()
+    {
+        GameEvents.Instance.BallLoose(looseBall.BallFloor);
+        state = BallState.LOOSE;
+        looseBall.DrawShadow(shadowPrefab, sprite.size.y);
+    }
 }
