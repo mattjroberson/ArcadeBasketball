@@ -1,2 +1,2 @@
 # Pixel-Ball
-C# Codebase for my Unity Project, Pixel Basketball 
+3D Basketball App being developed in Unity.
